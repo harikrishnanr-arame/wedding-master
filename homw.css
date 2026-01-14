@@ -1,0 +1,268 @@
+/* Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Playfair Display', serif;
+}
+
+.hero {
+  position: relative;
+  min-height: 100vh;
+  background: #fdfcf8;
+  overflow: hidden;
+}
+
+/* NAVBAR */
+.hero-nav {
+  position: absolute;
+  top: 30px;
+  width: 100%;
+  text-align: center;
+}
+
+.hero-nav ul {
+  list-style: none;
+  display: inline-flex;
+  gap: 40px;
+}
+
+.hero-nav li {
+  font-size: 14px;
+  letter-spacing: 2px;
+  cursor: pointer;
+}
+
+/* HERO CONTENT */
+.hero-content {
+  position: relative;
+  z-index: 5;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+}
+
+.hero-content h1 {
+  font-size: 42px;
+  font-weight: 400;
+  letter-spacing: 3px;
+}
+
+.hero-content p {
+  font-size: 18px;
+  margin-top: 12px;
+  opacity: 0.7;
+}
+
+.hero-btn {
+  margin-top: 30px;
+  padding: 14px 34px;
+  border-radius: 30px;
+  border: none;
+  background: #c5b2ad;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* SCROLL INDICATOR */
+.scroll-indicator {
+  margin-top: 50px;
+  width: 28px;
+  height: 48px;
+  border: 2px solid #777;
+  border-radius: 20px;
+  position: relative;
+}
+
+.scroll-indicator span {
+  width: 6px;
+  height: 6px;
+  background: #777;
+  border-radius: 50%;
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: scroll 1.5s infinite;
+}
+
+@keyframes scroll {
+  0% { top: 10px; opacity: 1; }
+  100% { top: 26px; opacity: 0; }
+}
+
+/* TEMPLATE STACKS */
+.template-stack {
+  position: absolute;
+  width: 340px;
+  height: 520px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* COMMON IMAGE STYLE */
+.template-stack img {
+  position: absolute;
+  width: 280px;
+  border-radius: 6px;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.18);
+}
+
+/* LEFT SIDE */
+.template-stack.left {
+  left: -80px;
+}
+
+.template-stack.left .img-one {
+  top: 0;
+  left: 10px;
+  transform: rotate(35deg);
+  z-index: 1;
+}
+
+.template-stack.left .img-two {
+  top: 150px;
+  left: 20px;
+  transform: rotate(35deg);
+  z-index: 2;
+}
+
+.template-stack.left .img-three {
+  top: 300px;
+  left: 40px;
+  transform: rotate(35deg);
+  z-index: 3;
+}
+
+/* RIGHT SIDE */
+.template-stack.right {
+  right: -80px;
+}
+
+.template-stack.right .img-one {
+  top: 0;
+  right: 10px;
+  transform: rotate(-35deg);
+  z-index: 1;
+}
+
+.template-stack.right .img-two {
+  top: 150px;
+  right: 20px;
+  transform: rotate(-35deg);
+  z-index: 2;
+}
+
+.template-stack.right .img-three {
+  top: 300px;
+  right: 40;
+  transform: rotate(-35deg);
+
+  z-index: 3;
+}
+
+/* responsive */
+
+@media (max-width: 1024px) {
+  .hero-content h1 {
+    font-size: 36px;
+    letter-spacing: 2px;
+  }
+
+  .hero-content p {
+    font-size: 16px;
+  }
+
+  .template-stack {
+    width: 260px;
+    height: 420px;
+  }
+
+  .template-stack img {
+    width: 220px;
+  }
+
+  .template-stack.left {
+    left: -120px;
+  }
+
+  .template-stack.right {
+    right: -120px;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero {
+    min-height: auto;
+    padding: 120px 20px 80px;
+  }
+
+  /* NAV */
+  .hero-nav {
+    top: 20px;
+  }
+
+  .hero-nav ul {
+    gap: 20px;
+  }
+
+  .hero-nav li {
+    font-size: 12px;
+    letter-spacing: 1px;
+  }
+
+  /* CONTENT */
+  .hero-content {
+    height: auto;
+  }
+
+  .hero-content h1 {
+    font-size: 30px;
+    letter-spacing: 1.5px;
+  }
+
+  .hero-content p {
+    font-size: 15px;
+  }
+
+  .hero-btn {
+    padding: 12px 28px;
+    font-size: 13px;
+  }
+
+  /* HIDE STACK IMAGES */
+  .template-stack {
+    display: none;
+  }
+
+  /* SCROLL INDICATOR */
+  .scroll-indicator {
+    margin-top: 40px;
+    transform: scale(0.9);
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-content h1 {
+    font-size: 26px;
+  }
+
+  .hero-content p {
+    font-size: 14px;
+  }
+
+  .hero-nav ul {
+    gap: 14px;
+  }
+}
+
