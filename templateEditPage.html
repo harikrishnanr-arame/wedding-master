@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Edit Template</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="./css/templateEditing.css">
+</head>
+<body>
+
+<!-- MOBILE MENU BUTTON -->
+<button class="menu-toggle">☰</button>
+
+<div class="layout">
+
+  <!-- SIDEBAR  -->
+ <aside class="sidebar">
+    <div class="profile">
+      <img src="./img/userdash/untitled (7).jpeg" alt="User">
+      <h4>ASWIN TK</h4>
+      <p>aswintk@arameglobal.com</p>
+      <p>9539697664</p>
+    </div>
+
+    <ul class="menu">
+      <li>🏠 Dashboard</li>
+      <li class="active">📄 Templates</li>
+      <li>💳 Payments</li>
+    </ul>
+
+    <div class="logout">⏻ Log Out</div>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <!-- HEADER -->
+    <div class="editor-header">
+      <h1>Edit Your Template</h1>
+      <p>Welcome, Aswin! Personalize your website content using the editor below.</p>
+    </div>
+
+    <!-- EDITOR LAYOUT -->
+    <div class="editor-layout">
+
+      <!-- TEMPLATE PREVIEW -->
+      <section class="template-preview">
+        <iframe
+            id="templateFrame"
+            src="templates/template1/index.html"
+            frameborder="0"
+        ></iframe>
+      </section>
+
+      <!-- EDITING PANEL -->
+      <aside class="editing-panel">
+
+        <div class="panel-header">
+          <h3>Editing Panel</h3>
+          <span class="close">✕</span>
+        </div>
+
+        <div class="panel-section">
+          <h4>Portfolio Images</h4>
+          <div class="image-grid">
+            <img src="./img/i.jpg">
+            <img src="./img/i1.jpg">
+            <img src="./img/i2.png">
+          </div>
+          <button class="upload-btn">Upload Image</button>
+        </div>
+
+        <div class="panel-section">
+        <h4>About Me</h4>
+        <input
+            type="text"
+            id="aboutInput"
+            value="I'm someone."
+        >
+        </div>
+
+        <div class="panel-section">
+        <h4>Subtitle</h4>
+        <textarea id="subtitleInput" rows="5">Hello and welcome! I'm a wedding and lifestyle photographer.</textarea>
+        </div>
+        <div class="panel-section">
+        <h4>Hero Image</h4>
+        <input type="file" id="imageInput" accept="image/*">
+        </div>
+
+        <div class="panel-actions">
+          <button class="save">Save Changes</button>
+          <button class="publish" id="publishBtn">Publish & Deploy</button>
+        </div>
+
+      </aside>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  const toggleBtn = document.querySelector(".menu-toggle");
+  const sidebar = document.querySelector(".sidebar");
+
+  toggleBtn.addEventListener("click", e => {
+    e.stopPropagation();
+    sidebar.classList.toggle("active");
+  });
+
+  document.addEventListener("click", () => {
+    if (window.innerWidth <= 768) {
+      sidebar.classList.remove("active");
+    }
+  });
+</script>
+
+<script>
+  const iframe = document.getElementById("templateFrame");
+
+  const aboutInput = document.getElementById("aboutInput");
+  const subtitleInput = document.getElementById("subtitleInput");
+  const imageInput = document.getElementById("imageInput");
+  const saveBtn = document.querySelector(".save");
+
+  const STORAGE_KEY = "templateDraft";
+
+  let titleEl, subtitleEl, heroImage;
+
+  iframe.addEventListener("load", () => {
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+
+    titleEl = iframeDoc.getElementById("title");
+    subtitleEl = iframeDoc.getElementById("subtitle");
+    heroImage = iframeDoc.getElementById("heroImage");
+
+    if (!titleEl || !subtitleEl || !heroImage) return;
+
+    // Load saved draft (ONLY on page load)
+    const savedDraft = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (savedDraft) {
+      titleEl.textContent = savedDraft.title || titleEl.textContent;
+      subtitleEl.textContent = savedDraft.subtitle || subtitleEl.textContent;
+      if (savedDraft.image) heroImage.src = savedDraft.image;
+
+      aboutInput.value = titleEl.textContent;
+      subtitleInput.value = subtitleEl.textContent;
+    }
+  });
+
+  // LIVE PREVIEW (NO SAVE)
+  aboutInput.addEventListener("input", () => {
+    if (titleEl) titleEl.textContent = aboutInput.value;
+  });
+
+  subtitleInput.addEventListener("input", () => {
+    if (subtitleEl) subtitleEl.textContent = subtitleInput.value;
+  });
+
+  imageInput.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file || !heroImage) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      heroImage.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // SAVE ONLY WHEN BUTTON CLICKED
+  saveBtn.addEventListener("click", () => {
+    if (!titleEl || !subtitleEl || !heroImage) return;
+
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        title: titleEl.textContent,
+        subtitle: subtitleEl.textContent,
+        image: heroImage.src,
+      })
+    );
+
+    alert("Changes saved successfully!");
+  });
+</script>
+
+
+<script>
+  document.getElementById("publishBtn").addEventListener("click", () => {
+    localStorage.removeItem("templateDraft");
+    alert("Template published successfully!");
+  });
+</script>
+
+</body>
+</html>

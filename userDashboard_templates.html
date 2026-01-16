@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Templates Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="./css/userDashboard_templates.css">
+
+</head>
+<body>
+
+<!-- MOBILE MENU BUTTON -->
+<button class="menu-toggle" aria-label="Toggle Menu">☰</button>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="profile">
+      <img src="./img/userdash/untitled (7).jpeg" alt="User">
+      <h4>ASWIN TK</h4>
+      <p>aswintk@arameglobal.com</p>
+      <p>9539697664</p>
+    </div>
+
+    <ul class="menu">
+      <li>🏠 Dashboard</li>
+      <li class="active">📄 Templates</li>
+      <li>💳 Payments</li>
+    </ul>
+
+    <div class="logout">⏻ Log Out</div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="content">
+    <h2 class="welcome">Welcome Back Aswin TK</h2>
+
+    <div class="section-title">
+      Choose Your Template
+    </div>
+
+    <div class="templates-grid">
+      <div class="template-card">
+        <img src="./img/i.jpg" alt="">
+        <button onclick="location.href='templateEditPage.html'">Choose This Template</button>
+      </div>
+
+      <div class="template-card">
+        <img src="./img/i1.jpg" alt="">
+        <button onclick="location.href='templateEditPage.html'">Choose This Template</button>
+      </div>
+
+      <div class="template-card">
+        <img src="./img/i2.png" alt="">
+        <button onclick="location.href='templateEditPage.html'">Choose This Template</button>
+      </div>
+
+      <div class="template-card">
+        <img src="./img/i3.png" alt="">
+        <button onclick="location.href='templateEditPage.html'">Choose This Template</button>
+      </div>
+
+      <div class="template-card">
+        <img src="./img/i4.png" alt="">
+        <button onclick="location.href='templateEditPage.html'">Choose This Template</button>
+      </div>
+
+      <div class="template-card">
+        <img src="./img/i5.png" alt="">
+        <button onclick="location.href='templateEditPage.html'">Choose This Template</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  const toggleBtn = document.querySelector('.menu-toggle');
+  const sidebar = document.querySelector('.sidebar');
+
+  toggleBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    sidebar.classList.toggle('active');
+  });
+
+  sidebar.addEventListener('click', (e) => {
+    e.stopPropagation();
+  });
+
+  document.addEventListener('click', () => {
+    if (window.innerWidth <= 768) {
+      sidebar.classList.remove('active');
+    }
+  });
+</script>
+
+</body>
+</html>
