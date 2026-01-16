@@ -1,0 +1,85 @@
+    .page-header {
+      margin-bottom: 20px;
+    }
+
+    .page-header h1 {
+      font-size: 24px;
+      margin-bottom: 6px;
+    }
+
+    .page-header p {
+      color: #777;
+      font-size: 14px;
+    }
+
+    /* PAYMENTS TABLE */
+    .payments-box {
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 14px 12px;
+      text-align: left;
+      font-size: 14px;
+      border-bottom: 1px solid #eee;
+    }
+
+    th {
+      color: #555;
+      font-weight: 600;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .status {
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    .paid {
+      background: #e7f7ee;
+      color: #1a7f4d;
+    }
+
+    .pending {
+      background: #fff4d6;
+      color: #a16207;
+    }
+
+    .failed {
+      background: #fde8e8;
+      color: #b91c1c;
+    }
+
+    .invoice-btn {
+      padding: 7px 14px;
+      font-size: 12px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      background: #111;
+      color: #fff;
+    }
+
+    .invoice-btn:hover {
+      background: #333;
+    }
+
+    @media (max-width: 768px) {
+      table {
+        font-size: 13px;
+      }
+    }
