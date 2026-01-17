@@ -1,5 +1,7 @@
 <?php
 
+$envConfig = include __DIR__.'/environment.php';
+
 return [
 
     /*
@@ -14,7 +16,7 @@ return [
     |
     */
 
-    'default' => env('MAIL_MAILER', 'log'),
+    'default' => $envConfig['MAIL_MAILER'],
 
     /*
     |--------------------------------------------------------------------------

@@ -1,5 +1,7 @@
 <?php
 
+$envConfig = include __DIR__.'/environment.php';
+
 return [
 
     /*
@@ -23,9 +25,9 @@ return [
     ],
 
     'ses' => [
-        'key' => env('AWS_ACCESS_KEY_ID'),
-        'secret' => env('AWS_SECRET_ACCESS_KEY'),
-        'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+        'key' => $envConfig['AWS_ACCESS_KEY_ID'],
+        'secret' => $envConfig['AWS_SECRET_ACCESS_KEY'],
+        'region' => $envConfig['AWS_DEFAULT_REGION'],
     ],
 
     'slack' => [

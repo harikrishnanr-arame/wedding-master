@@ -2,19 +2,7 @@
 
 use Illuminate\Support\Str;
 
-$env = env('ENVIRONMENT', 'dev');
-$location = env('LOCATION', 'LOCAL');
-
-if ($location === 'LOCAL') {
-    $file = "environments/{$env}.php";
-    $dbConfig = include base_path($file);
-} else {
-    $file = "environments/{$env}_server.php";
-    $encrypted = include base_path($file);
-    $key = base64_decode(str_replace('base64:', '', env('APP_KEY')));
-    $encrypter = new \Illuminate\Encryption\Encrypter($key, 'AES-256-CBC');
-    $dbConfig = unserialize($encrypter->decryptString($encrypted));
-}
+$dbConfig = include __DIR__.'/environment.php';
 
 return [
 
@@ -168,10 +156,10 @@ return [
 
         'default' => [
             'url' => env('REDIS_URL'),
-            'host' => env('REDIS_HOST', '127.0.0.1'),
+            'host' => $dbConfig['REDIS_HOST'],
             'username' => env('REDIS_USERNAME'),
-            'password' => env('REDIS_PASSWORD'),
-            'port' => env('REDIS_PORT', '6379'),
+            'password' => $dbConfig['REDIS_PASSWORD'],
+            'port' => $dbConfig['REDIS_PORT'],
             'database' => env('REDIS_DB', '0'),
             'max_retries' => env('REDIS_MAX_RETRIES', 3),
             'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
@@ -181,10 +169,10 @@ return [
 
         'cache' => [
             'url' => env('REDIS_URL'),
-            'host' => env('REDIS_HOST', '127.0.0.1'),
+            'host' => $dbConfig['REDIS_HOST'],
             'username' => env('REDIS_USERNAME'),
-            'password' => env('REDIS_PASSWORD'),
-            'port' => env('REDIS_PORT', '6379'),
+            'password' => $dbConfig['REDIS_PASSWORD'],
+            'port' => $dbConfig['REDIS_PORT'],
             'database' => env('REDIS_CACHE_DB', '1'),
             'max_retries' => env('REDIS_MAX_RETRIES', 3),
             'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
