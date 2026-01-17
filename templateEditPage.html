@@ -4,17 +4,23 @@
   <meta charset="UTF-8" />
   <title>Edit Template</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- EXISTING CSS (DESKTOP DESIGN SOURCE) -->
   <link rel="stylesheet" href="./css/templateEditing.css">
+
+  <!-- TAILWIND (RESPONSIVENESS ONLY) -->
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+
+<body class="bg-[#e7eadf]">
 
 <!-- MOBILE MENU BUTTON -->
-<button class="menu-toggle">☰</button>
+<button class="menu-toggle md:hidden">☰</button>
 
-<div class="layout">
+<div class="layout min-h-screen flex">
 
-  <!-- SIDEBAR  -->
- <aside class="sidebar">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
     <div class="profile">
       <img src="./img/userdash/untitled (7).jpeg" alt="User">
       <h4>ASWIN TK</h4>
@@ -23,16 +29,16 @@
     </div>
 
     <ul class="menu">
-      <li>🏠 Dashboard</li>
+      <a href="userDashboard.html"><li>🏠 Dashboard</li></a>
       <li class="active">📄 Templates</li>
-      <li>💳 Payments</li>
+      <a href="userDashboard_payments.html"><li>💳 Payments</li></a>
     </ul>
 
     <div class="logout">⏻ Log Out</div>
   </aside>
 
   <!-- CONTENT -->
-  <main class="content">
+  <main class="content flex-1 p-4 md:p-10">
 
     <!-- HEADER -->
     <div class="editor-header">
@@ -41,19 +47,22 @@
     </div>
 
     <!-- EDITOR LAYOUT -->
-    <div class="editor-layout">
+    <!-- Desktop: same grid (CSS) -->
+    <!-- Mobile: stacked -->
+    <div class="editor-layout grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6">
 
       <!-- TEMPLATE PREVIEW -->
       <section class="template-preview">
         <iframe
-            id="templateFrame"
-            src="templates/template1/index.html"
-            frameborder="0"
+          id="templateFrame"
+          src="templates/template1/index.html"
+          frameborder="0"
+          class="w-full h-[60vh] lg:h-full"
         ></iframe>
       </section>
 
       <!-- EDITING PANEL -->
-      <aside class="editing-panel">
+      <aside class="editing-panel max-h-[80vh] lg:max-h-none overflow-y-auto">
 
         <div class="panel-header">
           <h3>Editing Panel</h3>
@@ -71,24 +80,27 @@
         </div>
 
         <div class="panel-section">
-        <h4>About Me</h4>
-        <input
+          <h4>About Me</h4>
+          <input
             type="text"
             id="aboutInput"
             value="I'm someone."
-        >
+          >
         </div>
 
         <div class="panel-section">
-        <h4>Subtitle</h4>
-        <textarea id="subtitleInput" rows="5">Hello and welcome! I'm a wedding and lifestyle photographer.</textarea>
-        </div>
-        <div class="panel-section">
-        <h4>Hero Image</h4>
-        <input type="file" id="imageInput" accept="image/*">
+          <h4>Subtitle</h4>
+          <textarea id="subtitleInput" rows="5">
+            Hello and welcome! I'm a wedding and lifestyle photographer.
+          </textarea>
         </div>
 
-        <div class="panel-actions">
+        <div class="panel-section">
+          <h4>Hero Image</h4>
+          <input type="file" id="imageInput" accept="image/*">
+        </div>
+
+        <div class="panel-actions flex flex-col sm:flex-row gap-3">
           <button class="save">Save Changes</button>
           <button class="publish" id="publishBtn">Publish & Deploy</button>
         </div>
@@ -99,98 +111,95 @@
   </main>
 </div>
 
+<!-- SIDEBAR SCRIPT (UNCHANGED) -->
 <script>
-  const toggleBtn = document.querySelector(".menu-toggle");
-  const sidebar = document.querySelector(".sidebar");
+const toggleBtn = document.querySelector(".menu-toggle");
+const sidebar = document.querySelector(".sidebar");
 
-  toggleBtn.addEventListener("click", e => {
-    e.stopPropagation();
-    sidebar.classList.toggle("active");
-  });
+toggleBtn.addEventListener("click", e => {
+  e.stopPropagation();
+  sidebar.classList.toggle("active");
+});
 
-  document.addEventListener("click", () => {
-    if (window.innerWidth <= 768) {
-      sidebar.classList.remove("active");
-    }
-  });
+document.addEventListener("click", () => {
+  if (window.innerWidth <= 768) {
+    sidebar.classList.remove("active");
+  }
+});
 </script>
 
+<!-- EDITOR LOGIC (UNCHANGED) -->
 <script>
-  const iframe = document.getElementById("templateFrame");
+const iframe = document.getElementById("templateFrame");
 
-  const aboutInput = document.getElementById("aboutInput");
-  const subtitleInput = document.getElementById("subtitleInput");
-  const imageInput = document.getElementById("imageInput");
-  const saveBtn = document.querySelector(".save");
+const aboutInput = document.getElementById("aboutInput");
+const subtitleInput = document.getElementById("subtitleInput");
+const imageInput = document.getElementById("imageInput");
+const saveBtn = document.querySelector(".save");
 
-  const STORAGE_KEY = "templateDraft";
+const STORAGE_KEY = "templateDraft";
 
-  let titleEl, subtitleEl, heroImage;
+let titleEl, subtitleEl, heroImage;
 
-  iframe.addEventListener("load", () => {
-    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+iframe.addEventListener("load", () => {
+  const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
 
-    titleEl = iframeDoc.getElementById("title");
-    subtitleEl = iframeDoc.getElementById("subtitle");
-    heroImage = iframeDoc.getElementById("heroImage");
+  titleEl = iframeDoc.getElementById("title");
+  subtitleEl = iframeDoc.getElementById("subtitle");
+  heroImage = iframeDoc.getElementById("heroImage");
 
-    if (!titleEl || !subtitleEl || !heroImage) return;
+  if (!titleEl || !subtitleEl || !heroImage) return;
 
-    // Load saved draft (ONLY on page load)
-    const savedDraft = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if (savedDraft) {
-      titleEl.textContent = savedDraft.title || titleEl.textContent;
-      subtitleEl.textContent = savedDraft.subtitle || subtitleEl.textContent;
-      if (savedDraft.image) heroImage.src = savedDraft.image;
+  const savedDraft = JSON.parse(localStorage.getItem(STORAGE_KEY));
+  if (savedDraft) {
+    titleEl.textContent = savedDraft.title || titleEl.textContent;
+    subtitleEl.textContent = savedDraft.subtitle || subtitleEl.textContent;
+    if (savedDraft.image) heroImage.src = savedDraft.image;
 
-      aboutInput.value = titleEl.textContent;
-      subtitleInput.value = subtitleEl.textContent;
-    }
-  });
+    aboutInput.value = titleEl.textContent;
+    subtitleInput.value = subtitleEl.textContent;
+  }
+});
 
-  // LIVE PREVIEW (NO SAVE)
-  aboutInput.addEventListener("input", () => {
-    if (titleEl) titleEl.textContent = aboutInput.value;
-  });
+// LIVE PREVIEW
+aboutInput.addEventListener("input", () => {
+  if (titleEl) titleEl.textContent = aboutInput.value;
+});
 
-  subtitleInput.addEventListener("input", () => {
-    if (subtitleEl) subtitleEl.textContent = subtitleInput.value;
-  });
+subtitleInput.addEventListener("input", () => {
+  if (subtitleEl) subtitleEl.textContent = subtitleInput.value;
+});
 
-  imageInput.addEventListener("change", (e) => {
-    const file = e.target.files[0];
-    if (!file || !heroImage) return;
+imageInput.addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (!file || !heroImage) return;
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      heroImage.src = reader.result;
-    };
-    reader.readAsDataURL(file);
-  });
+  const reader = new FileReader();
+  reader.onload = () => heroImage.src = reader.result;
+  reader.readAsDataURL(file);
+});
 
-  // SAVE ONLY WHEN BUTTON CLICKED
-  saveBtn.addEventListener("click", () => {
-    if (!titleEl || !subtitleEl || !heroImage) return;
+// SAVE
+saveBtn.addEventListener("click", () => {
+  if (!titleEl || !subtitleEl || !heroImage) return;
 
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({
-        title: titleEl.textContent,
-        subtitle: subtitleEl.textContent,
-        image: heroImage.src,
-      })
-    );
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify({
+      title: titleEl.textContent,
+      subtitle: subtitleEl.textContent,
+      image: heroImage.src,
+    })
+  );
 
-    alert("Changes saved successfully!");
-  });
-</script>
+  alert("Changes saved successfully!");
+});
 
-
-<script>
-  document.getElementById("publishBtn").addEventListener("click", () => {
-    localStorage.removeItem("templateDraft");
-    alert("Template published successfully!");
-  });
+document.getElementById("publishBtn").addEventListener("click", () => {
+  localStorage.removeItem("templateDraft");
+  alert("Template published successfully!");
+  location.reload();
+});
 </script>
 
 </body>

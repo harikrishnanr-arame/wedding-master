@@ -24,6 +24,7 @@ body {
   top: 30px;
   width: 100%;
   text-align: center;
+  z-index: 1000;
 }
 
 .hero-nav ul {
@@ -36,6 +37,11 @@ body {
   font-size: 14px;
   letter-spacing: 2px;
   cursor: pointer;
+}
+
+.hero-nav a {
+  text-decoration: none;
+  color: black;
 }
 
 /* HERO CONTENT */
@@ -108,6 +114,7 @@ body {
   height: 520px;
   top: 50%;
   transform: translateY(-50%);
+  pointer-events: none;
 }
 
 /* COMMON IMAGE STYLE */
