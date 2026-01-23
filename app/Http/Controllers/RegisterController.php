@@ -1,22 +1,35 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
-class RegisterController extends Controller
-{
-    // For Show register page
-    public function showForm()
-    {
+/**
+ * RegisterController handles user registration.
+ *
+ * This controller manages registration-related operations, including displaying the registration form
+ * and processing new user registrations.
+ */
+class RegisterController extends Controller {
+    /**
+     * Display the registration form.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function showForm() {
         return view('auth.register');
     }
 
-    //For Handle registration
-    public function store(Request $request)
-    {
+    /**
+     * Handle user registration.
+     *
+     * Validates input data, creates a new user, and redirects to login with success message.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function store(Request $request) {
         //Validate input
         $request->validate([
             'name' => 'required|string|max:100',

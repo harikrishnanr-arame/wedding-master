@@ -3,6 +3,11 @@
 @section('title', 'Create Account')
 
 @section('content')
+    <!--
+        Registration page template for user account creation.
+        This view provides a form for new users to register with name, phone, email, and password,
+        and displays an image section on the right.
+    -->
 <link rel="stylesheet" href="{{ asset('assets/css/register.css') }}">
 
 <div class="page">

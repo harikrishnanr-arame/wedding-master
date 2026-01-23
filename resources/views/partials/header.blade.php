@@ -1,4 +1,8 @@
-<!-- Navbar -->
+<!--
+    Header partial for the application navigation.
+    This partial contains the main navigation menu with links to Home, Templates,
+    and conditional links for Sign Up/Login or Profile based on authentication status.
+-->
 <header class="hero-nav">
     <nav>
         <ul>

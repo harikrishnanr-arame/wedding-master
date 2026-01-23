@@ -3,6 +3,11 @@
 @section('title', 'Wedding Templates')
 
 @section('content')
+    <!--
+        Welcome page template for the wedding website.
+        This view displays the main landing page with hero section, available wedding templates,
+        customer testimonials, and a call-to-action section.
+    -->
     <section class="hero" style="background-image: url({{ asset('assets/img/bg.png') }});">
       <!-- LEFT TEMPLATE STACK -->
       <div class="template-stack left">
