@@ -1,22 +1,21 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
-class RegisterController extends Controller
-{
+class RegisterController extends Controller {
+
     // For Show register page
-    public function showForm()
-    {
+    public function showForm() {
+
         return view('auth.register');
     }
 
     //For Handle registration
-    public function store(Request $request)
-    {
+    public function store(Request $request) {
+        
         //Validate input
         $request->validate([
             'name' => 'required|string|max:100',
@@ -31,6 +30,7 @@ class RegisterController extends Controller
             'email' => $request->email,
             'mobile_number' => $request->phone,
             'password' => Hash::make($request->password),
+            'role' => 'user',
         ]);
 
         //Redirect after login
