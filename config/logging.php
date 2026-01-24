@@ -73,6 +73,20 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'custom_log' => [
+            'driver' => 'monolog',
+            'handler' => \App\Logging\CustomDailyHandler::class,
+            'handler_with' => [
+                storage_path('logs/logger.log'),
+                30,
+                \Monolog\Logger::DEBUG,
+                true,
+                null,
+                true,
+                'd_m_Y'
+            ],
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 /**
  * LoginController handles user authentication.
@@ -18,7 +19,17 @@ class LoginController extends Controller {
      * @return \Illuminate\View\View
      */
     public function showLogin() {
-        return view('auth.login');
+        try {
+            return view('auth.login');
+        } catch (\Exception $e) {
+            Log::channel('custom_log')->error('Error in LoginController@showLogin: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'request' => request()->all()
+            ]);
+            return response()->view('errors.500', [], 500);
+        } finally {
+            Log::channel('custom_log')->info('LoginController@showLogin method executed');
+        }
     }
 
     /**
@@ -32,18 +43,28 @@ class LoginController extends Controller {
      * @return \Illuminate\Http\RedirectResponse
      */
     public function login(Request $request) {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+        try {
+            $credentials = $request->validate([
+                'email' => 'required|email',
+                'password' => 'required',
+            ]);
 
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-            return redirect('/')->with('success', 'Logged in successfully');
+            if (Auth::attempt($credentials)) {
+                $request->session()->regenerate();
+                return redirect('/')->with('success', 'Logged in successfully');
+            }
+
+            return back()->withErrors([
+                'email' => 'Invalid email or password',
+            ]);
+        } catch (\Exception $e) {
+            Log::channel('custom_log')->error('Error in LoginController@login: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'request' => $request->all()
+            ]);
+            return back()->withErrors(['email' => 'An error occurred. Please try again.']);
+        } finally {
+            Log::channel('custom_log')->info('LoginController@login method executed');
         }
-
-        return back()->withErrors([
-            'email' => 'Invalid email or password',
-        ]);
     }
 }
