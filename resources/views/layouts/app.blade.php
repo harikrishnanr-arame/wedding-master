@@ -1,4 +1,10 @@
 <!DOCTYPE html>
+<!--
+    Main application layout template.
+    This layout provides the base HTML structure for all pages, including meta tags,
+    CSS links for home, template, review, and footer styles, and includes the header partial.
+    Content is yielded from child views.
+-->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
