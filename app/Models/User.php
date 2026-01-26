@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Models;
-
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -9,6 +8,12 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Auth\Notifications\ResetPassword;
 
 
+/**
+ * User model representing a user in the application.
+ *
+ * This model handles user authentication and stores user information such as name, email,
+ * password, and mobile number.
+ */
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */

@@ -3,6 +3,11 @@
 @section('title', 'Login')
 
 @section('content')
+    <!--
+        Login page template for user authentication.
+        This view provides a form for users to log in with email and password,
+        displays error messages, and offers social login options.
+    -->
 <link rel="stylesheet" href="{{ asset('assets/css/login.css') }}">
 
 <div class="login-wrapper">
