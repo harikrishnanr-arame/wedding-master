@@ -56,6 +56,7 @@ class RegisterController extends Controller {
                 'email' => $request->email,
                 'mobile_number' => $request->phone,
                 'password' => Hash::make($request->password),
+                'role' => 'user',
             ]);
 
             //Redirect after login

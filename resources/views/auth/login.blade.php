@@ -50,7 +50,7 @@
       </div>
 
       <div class="forgot">
-        <a href="#">Forgot password?</a>
+        <a href="{{ route('password.request') }}">Forgot password?</a>
       </div>
 
       <button type="submit" class="login-btn">Log In</button>
@@ -66,7 +66,7 @@
     </div>
 
     <div class="social-buttons">
-      <button class="social google" type="button">
+      <button class="social google" type="button" onclick="window.location='{{ route('google.login') }}'">
         <img src="{{ asset('assets/img/login_signup/google.png') }}" />
         Google
       </button>
