@@ -1,42 +1,88 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
+use Exception;
 
-class GoogleAuthController extends Controller {
+/**
+ * Class GoogleAuthController
+ *
+ * Handles Google OAuth authentication using Laravel Socialite.
+ *
+ * Responsibilities:
+ * - Redirect user to Google login page
+ * - Handle Google callback response
+ * - Create or update user record
+ * - Log the user into the application
+ */
+class GoogleAuthController extends Controller
+{
+    /**
+     * Redirect the user to Google's OAuth authentication page.
+     */
+    public function redirect()
+    {
+        try {
 
-    public function redirect() {
-        return Socialite::driver('google')->redirect();
+            return Socialite::driver('google')->redirect();
+
+        } catch (Exception $e) {
+
+            return redirect('/login')
+                ->with('error', 'Unable to connect to Google. Please try again.');
+        }
     }
 
-    public function callback() {
+    /**
+     * Handle Google OAuth callback.
+     *   
+     * Retrieves user information from Google
+     * Checks if the user already exists in the database
+     * Creates a new user if not found
+     * Updates existing user with Google ID if missing
+     * Logs the user into the application
+     */
+    public function callback()
+    {
+        try {
 
-        $googleUser = Socialite::driver('google')->user();
+            $googleUser = Socialite::driver('google')->user();
 
-        $user = User::where('google_id', $googleUser->id)
-            ->orWhere('email', $googleUser->email)
-            ->first();
+            $user = User::where('google_id', $googleUser->id)
+                ->orWhere('email', $googleUser->email)
+                ->first();
 
-        if (!$user) {
-            $user = User::create([
-                'user_name' => $googleUser->name,
-                'email' => $googleUser->email,
-                'google_id' => $googleUser->id,
-                'password' => null,
-                'role' => 'user',
-            ]);
-        } else {
-            if (!$user->google_id) {
-                $user->update([
+            if (!$user) {
+
+                $user = User::create([
+                    'user_name' => $googleUser->name,
+                    'email'     => $googleUser->email,
                     'google_id' => $googleUser->id,
+                    'password'  => null,
+                    'role'      => 'user',
                 ]);
+
+            } else {
+
+                if (!$user->google_id) {
+                    $user->update([
+                        'google_id' => $googleUser->id,
+                    ]);
+                }
             }
+
+            Auth::login($user, true);
+
+            return redirect('/')
+                ->with('success', 'Logged in with Google');
+
+        } catch (Exception $e) {
+
+            return redirect('/login')
+                ->with('error', 'Google login failed. Please try again.');
         }
-
-        Auth::login($user, true);
-
-        return redirect('/')->with('success', 'Logged in with Google');
     }
 }

@@ -62,8 +62,10 @@ class User extends Authenticatable
     }
 
     /** for the admin check */
-    public function isAdmin() {
-        
-        return $this->role === 'admin';
+    public function isAdmin()
+    {
+        return strtolower(trim($this->role)) === 'admin';
     }
+
 }
+   
