@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Auth\Notifications\ResetPassword;
+
 
 /**
  * User model representing a user in the application.
@@ -27,6 +29,7 @@ class User extends Authenticatable
         'email',
         'password',
         'mobile_number',
+        'role',
     ];
 
     /**
@@ -44,10 +47,25 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-        ];
+    /**
+     * Having it as a function will break password reset. so i change it like this (aswin)
+     */
+   protected $casts = [
+    'email_verified_at' => 'datetime',
+    ];
+
+
+
+    public function sendPasswordResetNotification($token) {
+
+        $this->notify(new ResetPassword($token));
     }
+
+    /** for the admin check */
+    public function isAdmin()
+    {
+        return strtolower(trim($this->role)) === 'admin';
+    }
+
 }
+   

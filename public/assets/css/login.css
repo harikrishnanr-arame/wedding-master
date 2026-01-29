@@ -99,6 +99,17 @@ h1 {
   margin-bottom: 20px;
 }
 
+.login-btn:hover {
+  background: linear-gradient(90deg, #95a18e, #8dac85);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  transform: translateY(-1px);
+}
+
+.login-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
 .register {
   font-size: 14px;
   color: #666;
