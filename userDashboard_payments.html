@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Payments</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="./css/templateEditing.css">
+  <link rel="stylesheet" href="./css/userDashboard_payments.css">  
+  </head>
+<body>
+
+<!-- MOBILE MENU -->
+<button class="menu-toggle">☰</button>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="profile">
+      <img src="./img/userdash/untitled (7).jpeg" alt="User">
+      <h4>ASWIN TK</h4>
+      <p>aswintk@arameglobal.com</p>
+      <p>9539697664</p>
+    </div>
+
+    <ul class="menu">
+      <a style="text-decoration: none; color: black;" href="userDashboard.html"><li>🏠 Dashboard</li></a>
+      <a style="text-decoration: none; color: black;" href="userDashboard_templates.html"><li>📄 Templates</li></a>
+      <li class="active">💳 Payments</li>
+    </ul>
+
+    <div class="logout">⏻ Log Out</div>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <div class="page-header">
+      <h1>Payments</h1>
+      <p>All your template purchases and payment history</p>
+    </div>
+
+    <div class="payments-box">
+      <table>
+        <thead>
+          <tr>
+            <th>Payment ID</th>
+            <th>Date</th>
+            <th>Template</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Invoice</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td>#PAY-12001</td>
+            <td>14 Jan 2026</td>
+            <td>Portfolio Template</td>
+            <td>₹2,499</td>
+            <td><span class="status paid">PAID</span></td>
+            <td><button class="invoice-btn">Download</button></td>
+          </tr>
+
+          <tr>
+            <td>#PAY-11942</td>
+            <td>02 Jan 2026</td>
+            <td>Business Website</td>
+            <td>₹3,999</td>
+            <td><span class="status pending">PENDING</span></td>
+            <td><button class="invoice-btn">Download</button></td>
+          </tr>
+
+          <tr>
+            <td>#PAY-11811</td>
+            <td>18 Dec 2025</td>
+            <td>Photography Template</td>
+            <td>₹1,999</td>
+            <td><span class="status failed">FAILED</span></td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  const toggleBtn = document.querySelector(".menu-toggle");
+  const sidebar = document.querySelector(".sidebar");
+
+  toggleBtn.addEventListener("click", e => {
+    e.stopPropagation();
+    sidebar.classList.toggle("active");
+  });
+
+  document.addEventListener("click", () => {
+    if (window.innerWidth <= 768) {
+      sidebar.classList.remove("active");
+    }
+  });
+</script>
+
+</body>
+</html>
