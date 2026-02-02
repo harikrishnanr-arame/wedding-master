@@ -1,3 +1,17 @@
+/**
+ * Forgot Password View
+ *
+ * This view renders the password reset request form.
+ *
+ * Responsibilities:
+ * - Display a form for users to enter their registered email address
+ * - Show success message when reset link is sent
+ * - Display validation error messages for email field
+ * - Submit the form to the password.email route
+ *
+ * Part of Laravel's authentication password reset flow.
+ */
+
 <!DOCTYPE html>
 <html>
 <head>

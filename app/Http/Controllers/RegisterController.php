@@ -40,8 +40,8 @@ class RegisterController extends Controller {
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request)
-    {
+    public function store(Request $request) {
+        
         // Validate input
         $validated = $request->validate([
             'name' => 'required|string|max:100',

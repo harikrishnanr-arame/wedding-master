@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
@@ -18,13 +17,13 @@ use Exception;
  * - Create or update user record
  * - Log the user into the application
  */
-class GoogleAuthController extends Controller
-{
+class GoogleAuthController extends Controller {
+    
     /**
      * Redirect the user to Google's OAuth authentication page.
      */
-    public function redirect()
-    {
+    public function redirect() {
+
         try {
 
             return Socialite::driver('google')->redirect();
@@ -45,39 +44,38 @@ class GoogleAuthController extends Controller
      * Updates existing user with Google ID if missing
      * Logs the user into the application
      */
-    public function callback()
-    {
+    public function callback() {
+
         try {
 
             $googleUser = Socialite::driver('google')->user();
 
-            $user = User::where('google_id', $googleUser->id)
-                ->orWhere('email', $googleUser->email)
-                ->first();
+            // First try to find by google_id
+            $user = User::where('google_id', $googleUser->id)->first();
 
+            // If not found, find by email or create
             if (!$user) {
+                $user = User::firstOrCreate(
+                    ['email' => $googleUser->email],
+                    [
+                        'user_name' => $googleUser->name,
+                        'google_id' => $googleUser->id,
+                        'password'  => null,
+                        'role'      => 'user',
+                    ]
+                );
 
-                $user = User::create([
-                    'user_name' => $googleUser->name,
-                    'email'     => $googleUser->email,
-                    'google_id' => $googleUser->id,
-                    'password'  => null,
-                    'role'      => 'user',
-                ]);
-
-            } else {
-
+                // If user exists but google_id is null, update it
                 if (!$user->google_id) {
                     $user->update([
-                        'google_id' => $googleUser->id,
+                        'google_id' => $googleUser->id
                     ]);
                 }
             }
 
             Auth::login($user, true);
 
-            return redirect('/')
-                ->with('success', 'Logged in with Google');
+            return redirect('/')->with('success', 'Logged in with Google');
 
         } catch (Exception $e) {
 

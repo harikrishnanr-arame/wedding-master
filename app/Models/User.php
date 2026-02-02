@@ -7,15 +7,14 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Auth\Notifications\ResetPassword;
 
-
 /**
  * User model representing a user in the application.
  *
  * This model handles user authentication and stores user information such as name, email,
  * password, and mobile number.
  */
-class User extends Authenticatable
-{
+class User extends Authenticatable {
+
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
@@ -30,6 +29,7 @@ class User extends Authenticatable
         'password',
         'mobile_number',
         'role',
+        'google_id', 
     ];
 
     /**
@@ -54,18 +54,15 @@ class User extends Authenticatable
     'email_verified_at' => 'datetime',
     ];
 
-
-
     public function sendPasswordResetNotification($token) {
 
         $this->notify(new ResetPassword($token));
     }
 
     /** for the admin check */
-    public function isAdmin()
-    {
+    public function isAdmin() {
+
         return strtolower(trim($this->role)) === 'admin';
     }
 
 }
-   
