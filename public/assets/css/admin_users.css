@@ -1,0 +1,163 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    background:#eef2f7;
+}
+
+.dashboard{
+    display:flex;
+    height:100vh;
+}
+
+/* Sidebar */
+.sidebar{
+    width:250px;
+    background:#1f2a44;
+    color:white;
+    padding:20px 0;
+}
+
+.sidebar h2{
+    text-align:center;
+    margin-bottom:30px;
+}
+
+.sidebar ul{
+    list-style:none;
+}
+
+.sidebar ul li{
+    padding:15px 25px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.sidebar ul li:hover,
+.sidebar ul li.active{
+    background:#2e3c5c;
+    border-left:4px solid #4e8cff;
+}
+
+/* Main */
+.main{
+    flex:1;
+    padding:25px;
+}
+
+/* Topbar */
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+.profile{
+    background:#4e8cff;
+    padding:8px 15px;
+    border-radius:30px;
+    color:white;
+}
+
+/* Panel */
+.panel{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.05);
+}
+
+/* Header Row */
+.users-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.users-header input{
+    padding:8px 12px;
+    border-radius:6px;
+    border:1px solid #ddd;
+    outline:none;
+    width:250px;
+}
+
+.add-btn{
+    background:#4e8cff;
+    color:white;
+    border:none;
+    padding:8px 15px;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+/* Table */
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+thead{
+    background:#f5f7fb;
+}
+
+th, td{
+    padding:12px;
+    text-align:left;
+    font-size:14px;
+}
+
+th{
+    color:#666;
+}
+
+tbody tr{
+    border-bottom:1px solid #eee;
+}
+
+tbody tr:hover{
+    background:#f9fbff;
+}
+
+/* Status */
+.status{
+    padding:4px 10px;
+    border-radius:20px;
+    font-size:12px;
+}
+
+.active{
+    background:#d4f8e8;
+    color:#2e7d32;
+}
+
+.inactive{
+    background:#ffe0e0;
+    color:#b71c1c;
+}
+
+/* Actions */
+.actions button{
+    border:none;
+    padding:5px 10px;
+    border-radius:4px;
+    cursor:pointer;
+    font-size:12px;
+    margin-right:5px;
+}
+
+.edit{
+    background:#cce5ff;
+    color:#004085;
+}
+
+.delete{
+    background:#ffe0e0;
+    color:#b71c1c;
+}

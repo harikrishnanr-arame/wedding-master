@@ -4,6 +4,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\GoogleAuthController;
+use App\Http\Controllers\AdminController;
 
 //home
 Route::get('/', [HomeController::class, 'home']);
@@ -63,3 +64,17 @@ Route::middleware(['auth', 'admin'])->group(function () {
     });
 });
 
+//Admin dashboard routes
+Route::prefix('admin')->middleware(['auth'])->group(function () {
+
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+
+    Route::get('/users', [AdminController::class, 'users'])->name('admin.users');
+
+    Route::get('/manage-content', [AdminController::class, 'content'])->name('admin.content');
+
+    Route::get('/payments', [AdminController::class, 'payments'])->name('admin.payments');
+
+    Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
+
+});
