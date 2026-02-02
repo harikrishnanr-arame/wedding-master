@@ -64,7 +64,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     });
 });
 
-//Admin dashboard routes
+// Admin dashboard routes
 Route::prefix('admin')->middleware(['auth'])->group(function () {
 
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
@@ -77,4 +77,13 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
 
     Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
 
+
+    // AJAX Routes for Users Page
+    Route::get('/users/list', [AdminController::class, 'getUsers'])->name('admin.users.list');
+
+    Route::delete('/users/delete/{id}', [AdminController::class, 'deleteUser'])->name('admin.users.delete');
+    Route::post('/users/store', [AdminController::class, 'storeUser'])->name('admin.users.store');
+
+
 });
+

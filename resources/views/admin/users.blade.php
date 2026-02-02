@@ -6,10 +6,11 @@
 @section('content')
 
 <div class="panel">
-
     <div class="users-header">
         <input type="text" placeholder="Search users..." id="searchInput">
-        <button class="add-btn" id="addUserBtn">+ Add User</button>
+            <button id="addUserBtn" style="padding:8px 15px; background:#4e8cff; color:white; border:none; border-radius:6px;">
+        + Add User
+    </button>
     </div>
 
     <table>
@@ -19,7 +20,6 @@
                 <th>Name</th>
                 <th>Email</th>
                 <th>Role</th>
-                <th>Status</th>
                 <th>Joined</th>
                 <th>Actions</th>
             </tr>
@@ -27,6 +27,48 @@
 
         <tbody id="usersTableBody"></tbody>
     </table>
+
+    <!-- Add User Modal -->
+    <div id="addUserModal" class="modal-overlay">
+        <div class="modal-box">
+
+            <div class="modal-header">
+                <h3>Add New User</h3>
+                <span class="close-modal" id="closeModal">&times;</span>
+            </div>
+
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" id="newName" placeholder="Enter name">
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="newEmail" placeholder="Enter email">
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="newPassword" placeholder="Enter password">
+                </div>
+
+                <div class="form-group">
+                    <label>Role</label>
+                    <select id="newRole">
+                        <option value="0">User</option>
+                        <option value="1">Admin</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-secondary" id="closeModalBtn">Cancel</button>
+                <button class="btn-primary" id="saveUser">Create User</button>
+            </div>
+
+        </div>
+    </div>
 
 </div>
 
@@ -36,89 +78,147 @@
 <script>
 $(document).ready(function() {
 
-    // Fake Database
-    let users = [
-        {id:1, name:"Michael Brown", email:"michael@example.com", role:"Admin", status:"Active", joined:"12 Jan 2026"},
-        {id:2, name:"Emily White", email:"emily@example.com", role:"User", status:"Active", joined:"10 Jan 2026"},
-        {id:3, name:"John Smith", email:"john@example.com", role:"User", status:"Inactive", joined:"08 Jan 2026"},
-        {id:4, name:"Sophia Johnson", email:"sophia@example.com", role:"User", status:"Active", joined:"05 Jan 2026"}
-    ];
+    function loadUsers() {
+        $.ajax({
+            url: "{{ route('admin.users.list') }}",
+            type: "GET",
+            success: function(data) {
 
-    function loadUsers(data = users) {
-        let rows = "";
+                let rows = "";
 
-        if (data.length === 0) {
-            rows = `<tr><td colspan="7" style="text-align:center; color:#777;">No matching users found</td></tr>`;
-        } else {
-            data.forEach((user, index) => {
-                let statusClass = user.status === "Active" ? "active" : "inactive";
+                if (data.length === 0) {
+                    rows = `<tr>
+                        <td colspan="6" style="text-align:center;">No users found</td>
+                    </tr>`;
+                } else {
+                    data.forEach((user, index) => {
 
-                rows += `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td>${user.name}</td>
-                        <td>${user.email}</td>
-                        <td>${user.role}</td>
-                        <td><span class="status ${statusClass}">${user.status}</span></td>
-                        <td>${user.joined}</td>
-                        <td class="actions">
-                            <button class="delete" data-id="${user.id}">Delete</button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
+                        let joinedDate = user.created_at 
+                            ? new Date(user.created_at).toLocaleDateString()
+                            : '-';
 
-        $("#usersTableBody").html(rows);
+                        rows += `
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td>${user.user_name}</td>
+                                <td>${user.email}</td>
+                                <td>${user.role ?? 'user'}</td>
+                                <td>${joinedDate}</td>
+                                <td>
+                                    <button class="delete" data-id="${user.id}"><i class="fa-solid fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                $("#usersTableBody").html(rows);
+            }
+        });
     }
 
-    // Search
-    $("#searchInput").on("input", function() {
-        let value = $(this).val().toLowerCase();
-
-        let filtered = users.filter(user =>
-            user.name.toLowerCase().includes(value) ||
-            user.email.toLowerCase().includes(value)
-        );
-
-        loadUsers(filtered);
-    });
-
-    // Delete User
+    // DELETE
     $(document).on("click", ".delete", function() {
+
+        if (!confirm("Are you sure you want to delete this user?")) return;
+
         let id = $(this).data("id");
-        users = users.filter(user => user.id !== id);
-        loadUsers();
+
+        $.ajax({
+            url: "{{ url('admin/users/delete') }}/" + id,
+            type: "DELETE",
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                if(response.error){
+                    alert(response.error);
+                } else {
+                    loadUsers();
+                }
+            }
+        });
+
     });
 
-    // Add User
-    $("#addUserBtn").click(function() {
+    // SEARCH FILTER
+    $("#searchInput").on("keyup", function () {
 
-        let name = prompt("Enter Name:");
-        let email = prompt("Enter Email:");
-        let role = prompt("Enter Role (Admin/User):");
+        let value = $(this).val().toLowerCase().trim();
+        let rows = $("#usersTableBody tr").not("#noDataRow");
+        let matchCount = 0;
 
-        if (!name || !email || !role) {
-            alert("All fields required!");
-            return;
+        rows.each(function () {
+
+            let name = $(this).find("td:eq(1)").text().toLowerCase();
+            let email = $(this).find("td:eq(2)").text().toLowerCase();
+
+            if (name.includes(value) || email.includes(value)) {
+                $(this).show();
+                matchCount++;
+            } else {
+                $(this).hide();
+            }
+
+        });
+
+        $("#noDataRow").remove();
+
+        if (matchCount === 0 && value !== "") {
+            $("#usersTableBody").append(`
+                <tr id="noDataRow">
+                    <td colspan="6" style="text-align:center;">No users found</td>
+                </tr>
+            `);
         }
 
-        let newUser = {
-            id: users.length ? users[users.length - 1].id + 1 : 1,
-            name: name,
-            email: email,
-            role: role,
-            status: "Active",
-            joined: new Date().toLocaleDateString()
-        };
-
-        users.push(newUser);
-        loadUsers();
     });
 
-    // Initial Load
-    loadUsers();
+    // OPEN MODAL
+    $("#addUserBtn").click(function(){
+        $("#addUserModal").css("display","flex");
+    });
 
+    // CLOSE MODAL
+    $("#closeModal").click(function(){
+        $("#addUserModal").hide();
+    });
+
+    // SAVE USER
+    $("#saveUser").click(function(){
+
+        $.ajax({
+            url: "{{ route('admin.users.store') }}",
+            type: "POST",
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                user_name: $("#newName").val(),
+                email: $("#newEmail").val(),
+                password: $("#newPassword").val(),
+                role: $("#newRole").val()
+            },
+            success: function(response){
+                
+                $("#addUserModal").hide();
+
+                // Clear form
+                $("#newName").val('');
+                $("#newEmail").val('');
+                $("#newPassword").val('');
+                $("#newRole").val('0');
+
+                loadUsers();
+            },
+            error: function(xhr){
+                alert("Error: " + xhr.responseJSON.message);
+            }
+        });
+
+    });
+
+    loadUsers();
 });
 </script>
 
