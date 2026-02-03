@@ -65,25 +65,26 @@ Route::middleware(['auth', 'admin'])->group(function () {
 });
 
 // Admin dashboard routes
-Route::prefix('admin')->middleware(['auth'])->group(function () {
+Route::prefix('admin')->middleware(['auth'])->name('admin.')->group(function () {
 
-    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
-    Route::get('/users', [AdminController::class, 'users'])->name('admin.users');
+    Route::get('/users', [AdminController::class, 'users'])->name('users');
 
-    Route::get('/manage-content', [AdminController::class, 'content'])->name('admin.content');
+    Route::get('/manage-content', [AdminController::class, 'content'])->name('content');
 
-    Route::get('/payments', [AdminController::class, 'payments'])->name('admin.payments');
+    Route::get('/payments', [AdminController::class, 'payments'])->name('payments');
 
-    Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
+    Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
 
+    // Users
+    Route::get('/users/list', [AdminController::class, 'getUsers'])->name('users.list');
+    Route::delete('/users/delete/{id}', [AdminController::class, 'deleteUser'])->name('users.delete');
+    Route::post('/users/store', [AdminController::class, 'storeUser'])->name('users.store');
 
-    // AJAX Routes for Users Page
-    Route::get('/users/list', [AdminController::class, 'getUsers'])->name('admin.users.list');
-
-    Route::delete('/users/delete/{id}', [AdminController::class, 'deleteUser'])->name('admin.users.delete');
-    Route::post('/users/store', [AdminController::class, 'storeUser'])->name('admin.users.store');
-
-
+    // Payments
+    Route::get('/payments/list', [AdminController::class, 'getPayments'])->name('payments.list');
+    Route::delete('/payments/delete/{id}', [AdminController::class, 'deletePayment'])->name('payments.delete');
 });
+
 
