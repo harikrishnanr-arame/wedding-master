@@ -41,7 +41,35 @@
                 <th>Actions</th>
             </tr>
         </thead>
-        <tbody id="paymentsTableBody"></tbody>
+        <tbody id="paymentsTableBody">
+            @if($payments->count())
+                @foreach($payments as $index => $payment)
+                    <tr>
+                        <td>{{ $index + 1 }}</td>
+                        <td>TXN{{ 1000 + $payment->id }}</td>
+                        <td>{{ $payment->user->user_name ?? 'N/A' }}</td>
+                        <td>₹ {{ number_format($payment->amount, 2) }}</td>
+                        <td>{{ $payment->payment_provider }}</td>
+                        <td>
+                            <span class="status {{ strtolower($payment->status) }}">
+                                {{ ucfirst($payment->status) }}
+                            </span>
+                        </td>
+                        <td>{{ $payment->created_at->format('d M Y') }}</td>
+                        <td class="actions">
+                            <button class="delete"></button>
+                        </td>
+                    </tr>
+                @endforeach
+            @else
+                <tr>
+                    <td colspan="8" style="text-align:center;padding:20px;">
+                        No payments found.
+                    </td>
+                </tr>
+            @endif
+        </tbody>
+
     </table>
 
 </div>
@@ -52,49 +80,46 @@
 <script>
 $(document).ready(function() {
 
-    let payments = [
-        {id:1, txn:"TXN1001", user:"Michael Brown", amount:5000, method:"UPI", status:"Paid", date:"12 Jan 2026"},
-        {id:2, txn:"TXN1002", user:"Emily White", amount:3200, method:"Card", status:"Pending", date:"11 Jan 2026"},
-        {id:3, txn:"TXN1003", user:"John Smith", amount:1500, method:"Net Banking", status:"Failed", date:"10 Jan 2026"}
-    ];
+    let allPayments = [];
 
-    function updateSummary(data = payments) {
-        let totalRevenue = 0;
-        let totalPending = 0;
-        let totalFailed = 0;
-
-        data.forEach(p => {
-            if (p.status === "Paid") totalRevenue += p.amount;
-            if (p.status === "Pending") totalPending += p.amount;
-            if (p.status === "Failed") totalFailed += p.amount;
+    // Load payments
+    function loadPayments() {
+        $.get('/admin/payments/list', function(data) {
+            allPayments = data;
+            renderPayments(allPayments);
+            updateTotals(allPayments);
         });
-
-        $("#totalRevenue").text("₹ " + totalRevenue);
-        $("#totalPending").text("₹ " + totalPending);
-        $("#totalFailed").text("₹ " + totalFailed);
     }
 
-    function loadPayments(data = payments) {
-        let rows = "";
+    // Render table
+    function renderPayments(payments) {
+        let rows = '';
 
-        if(data.length === 0){
-            rows = `<tr><td colspan="8" style="text-align:center; padding:20px;">No payments found.</td></tr>`;
+        if (payments.length === 0) {
+            rows = `<tr>
+                        <td colspan="8" style="text-align:center;padding:20px;">
+                            No payments found.
+                        </td>
+                    </tr>`;
         } else {
-            data.forEach((p, index) => {
-                let statusClass = p.status.toLowerCase();
-
+            payments.forEach((p, index) => {
                 rows += `
                     <tr>
                         <td>${index + 1}</td>
-                        <td>${p.txn}</td>
-                        <td>${p.user}</td>
-                        <td>₹ ${p.amount}</td>
-                        <td>${p.method}</td>
-                        <td><span class="status ${statusClass}">${p.status}</span></td>
-                        <td>${p.date}</td>
-                        <td class="actions">
-                            <button class="edit" data-id="${p.id}">Edit</button>
-                            <button class="delete" data-id="${p.id}">Delete</button>
+                        <td>TXN${1000 + p.id}</td>
+                        <td>${p.user ? p.user.user_name : 'N/A'}</td>
+                        <td>₹ ${parseFloat(p.amount).toFixed(2)}</td>
+                        <td>${p.payment_provider ?? '-'}</td>
+                        <td>
+                            <span class="status ${p.status.toLowerCase()}">
+                                ${p.status.charAt(0).toUpperCase() + p.status.slice(1)}
+                            </span>
+                        </td>
+                        <td>${new Date(p.created_at).toLocaleDateString()}</td>
+                        <td>
+                            <button class="delete" data-id="${p.id}">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
                         </td>
                     </tr>
                 `;
@@ -102,46 +127,72 @@ $(document).ready(function() {
         }
 
         $("#paymentsTableBody").html(rows);
-        updateSummary(data);
     }
 
-    // Delete
+    // Update summary totals
+    function updateTotals(payments) {
+        let totalRevenue = 0;
+        let totalPending = 0;
+        let totalFailed  = 0;
+
+        payments.forEach(p => {
+            const status = p.status.toLowerCase();
+
+            if (status === 'paid') totalRevenue += parseFloat(p.amount);
+            if (status === 'pending') totalPending += parseFloat(p.amount);
+            if (status === 'failed') totalFailed += parseFloat(p.amount);
+        });
+
+        $("#totalRevenue").text('₹ ' + totalRevenue.toFixed(2));
+        $("#totalPending").text('₹ ' + totalPending.toFixed(2));
+        $("#totalFailed").text('₹ ' + totalFailed.toFixed(2));
+    }
+
+    // Delete payment
     $(document).on("click", ".delete", function() {
+
         let id = $(this).data("id");
-        payments = payments.filter(p => p.id !== id);
-        loadPayments();
+
+        if(!confirm("Are you sure you want to delete this payment?")) return;
+
+        $.ajax({
+            url: `/admin/payments/delete/${id}`,
+            type: "DELETE",
+            data: {
+                _token: "{{ csrf_token() }}"
+            },
+            success: function() {
+                allPayments = allPayments.filter(p => p.id !== id);
+                renderPayments(allPayments);
+                updateTotals(allPayments);
+            },
+            error: function(xhr) {
+                console.log(xhr.responseText);
+                alert("Delete failed!");
+            }
+        });
     });
 
-    // Edit
-    $(document).on("click", ".edit", function() {
-        let id = $(this).data("id");
-        let payment = payments.find(p => p.id === id);
-
-        let newAmount = parseInt(prompt("Update Amount:", payment.amount));
-        let newStatus = prompt("Update Status:", payment.status);
-
-        if (!newAmount || !newStatus) return;
-
-        payment.amount = newAmount;
-        payment.status = newStatus;
-
-        loadPayments();
-    });
-
-    // Search functionality
+    // Search
     $("#searchPayment").on("input", function() {
-        let value = $(this).val().toLowerCase();
 
-        let filtered = payments.filter(p =>
-            p.txn.toLowerCase().includes(value) ||
-            p.user.toLowerCase().includes(value)
-        );
+        const search = $(this).val().toLowerCase();
 
-        loadPayments(filtered);
+        const filtered = allPayments.filter(p => {
+            const txn = 'TXN' + (1000 + p.id);
+            const user = p.user ? p.user.user_name.toLowerCase() : '';
+            const method = p.payment_provider ? p.payment_provider.toLowerCase() : '';
+
+            return txn.toLowerCase().includes(search)
+                || user.includes(search)
+                || method.includes(search);
+        });
+
+        renderPayments(filtered);
+        updateTotals(filtered);
     });
 
     loadPayments();
-
 });
 </script>
 
