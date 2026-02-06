@@ -85,6 +85,11 @@ Route::prefix('admin')->middleware(['auth'])->name('admin.')->group(function () 
     // Payments
     Route::get('/payments/list', [AdminController::class, 'getPayments'])->name('payments.list');
     Route::delete('/payments/delete/{id}', [AdminController::class, 'deletePayment'])->name('payments.delete');
+
+    //content
+    Route::post('/templates/store', [AdminController::class, 'storeTemplate'])->name('templates.store');
+    Route::delete('/templates/delete/{id}', [AdminController::class, 'deleteTemplate'])->name('templates.delete');
+    Route::patch('/templates/toggle/{id}', [AdminController::class, 'toggleTemplate'])->name('templates.toggle');
 });
 
 
