@@ -37,4 +37,11 @@ return [
         ],
     ],
 
+    'google' => [
+        'client_id' => $envConfig('GOOGLE_CLIENT_ID'),
+        'client_secret' => $envConfig('GOOGLE_CLIENT_SECRET'),
+        'redirect' => $envConfig('GOOGLE_REDIRECT_URI'),
+    ],
+
+
 ];
