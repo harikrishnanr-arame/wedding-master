@@ -179,7 +179,6 @@ class AdminController extends Controller {
      * - Dumps error message if an exception occurs
      */
     public function storeTemplate(Request $request) {
-
         try {
 
             $request->validate([
@@ -207,7 +206,9 @@ class AdminController extends Controller {
 
         } catch (\Exception $e) {
 
-            dd($e->getMessage());
+            \Log::error('Template upload failed: ' . $e->getMessage());
+
+            return redirect()->back()->with('error', 'Something went wrong while uploading template.');
         }
     }
 
