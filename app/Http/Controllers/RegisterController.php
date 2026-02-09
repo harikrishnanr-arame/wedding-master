@@ -41,34 +41,29 @@ class RegisterController extends Controller {
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request) {
-        try {
-            //Validate input
-            $request->validate([
-                'name' => 'required|string|max:100',
-                'email' => 'required|email|unique:users,email',
-                'phone' => 'nullable|digits_between:10,15',
-                'password' => 'required|min:6|confirmed',
-            ]);
+        
+        // Validate input
+        $validated = $request->validate([
+            'name' => 'required|string|max:100',
+            'email' => 'required|email|unique:users,email',
+            'phone' => 'nullable|digits_between:10,15|unique:users,mobile_number',
+            'password' => 'required|min:6|confirmed',
+        ], [
+            'email.unique' => 'This email is already registered.',
+            'phone.unique' => 'This mobile number is already registered.',
+        ]);
 
-            //Create user
-            User::create([
-                'user_name' => $request->name,
-                'email' => $request->email,
-                'mobile_number' => $request->phone,
-                'password' => Hash::make($request->password),
-            ]);
+        // Create user
+        User::create([
+            'user_name' => $validated['name'],
+            'email' => $validated['email'],
+            'mobile_number' => $validated['phone'] ?? null,
+            'password' => Hash::make($validated['password']),
+            'role' => 'user',
+        ]);
 
-            //Redirect after login
-            return redirect()->route('login')
-                ->with('success', 'Registration successful!');
-        } catch (\Exception $e) {
-            Log::channel('custom_log')->error('Error in RegisterController@store: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString(),
-                'request' => $request->all()
-            ]);
-            return back()->withErrors(['email' => 'An error occurred during registration. Please try again.']);
-        } finally {
-            Log::channel('custom_log')->info('RegisterController@store method executed');
-        }
+        return redirect()->route('login')
+            ->with('success', 'Registration successful!');
     }
+
 }

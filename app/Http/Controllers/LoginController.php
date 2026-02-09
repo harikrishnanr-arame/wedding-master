@@ -51,6 +51,12 @@ class LoginController extends Controller {
 
             if (Auth::attempt($credentials)) {
                 $request->session()->regenerate();
+
+                if (auth()->user()->isAdmin()) {
+                    return redirect('/admin/dashboard')
+                        ->with('success', 'Welcome Admin');
+                }
+
                 return redirect('/')->with('success', 'Logged in successfully');
             }
 
@@ -67,4 +73,5 @@ class LoginController extends Controller {
             Log::channel('custom_log')->info('LoginController@login method executed');
         }
     }
+
 }

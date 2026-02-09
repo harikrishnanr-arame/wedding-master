@@ -70,11 +70,22 @@ body {
   padding: 14px;
   border-radius: 999px;
   border: none;
-  background: linear-gradient(90deg, #d9a79b, #c89084);
+  background: linear-gradient(90deg, #ce9b8e, #9b675b);
   color: #fff;
   font-size: 15px;
   cursor: pointer;
   margin: 25px 0;
+}
+
+.signup-btn:hover {
+  background: linear-gradient(90deg, #b18378, #835148);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  transform: translateY(-1px);
+}
+
+.signup-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .login-link {
@@ -130,4 +141,22 @@ body {
   .form-section {
     margin: auto;
   }
+}
+
+/* Error css */
+.error {
+    color: red;
+    font-size: 13px;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.password-wrapper {
+    position: relative;
+}
+
+.password-wrapper .eye {
+    position: absolute;
+    right: 10px;
+    cursor: pointer;
 }
