@@ -61,14 +61,14 @@
         <form method="POST" action="{{ route('admin.templates.store') }}" enctype="multipart/form-data">
             @csrf
             @if ($errors->any())
-    <div style="background:#f8d7da;color:#721c24;padding:10px;margin-bottom:10px;border-radius:5px;">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
+            <div style="background:#f8d7da;color:#721c24;padding:10px;margin-bottom:10px;border-radius:5px;">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
 
 
             <div class="form-group">
@@ -114,76 +114,6 @@
 
 
 @section('scripts')
-
-<style>
-.modal {
-    display:none;
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,0.5);
-    justify-content:center;
-    align-items:center;
-}
-
-.modal-content {
-    background:#fff;
-    padding:25px;
-    width:400px;
-    border-radius:8px;
-}
-
-.template-card {
-    width:220px;
-    padding:10px;
-    text-align:center;
-}
-
-.template-cover {
-    width:100%;
-    height:140px;
-    object-fit:cover;
-}
-
-.templates-grid {
-    display:flex;
-    flex-wrap:wrap;
-    gap:20px;
-}
-
-.status-badge {
-    font-size: 12px;
-    padding: 4px 8px;
-    border-radius: 12px;
-    display: inline-block;
-    margin-bottom: 8px;
-    font-weight: bold;
-}
-
-.status-badge.active {
-    background: #d4edda;
-    color: #155724;
-}
-
-.status-badge.inactive {
-    background: #f8d7da;
-    color: #721c24;
-}
-
-.toggle-btn {
-    background: #007bff;
-    color: white;
-    border: none;
-    padding: 6px 10px;
-    margin-bottom: 6px;
-    cursor: pointer;
-    border-radius: 4px;
-}
-
-.toggle-btn:hover {
-    opacity: 0.9;
-}
-
-</style>
 
 <script>
 document.getElementById('addTemplateBtn').onclick = function() {
