@@ -75,4 +75,7 @@ Route::prefix('admin')
         Route::post('/templates/store', [AdminController::class, 'storeTemplate'])->name('templates.store');
         Route::delete('/templates/delete/{id}', [AdminController::class, 'deleteTemplate'])->name('templates.delete');
         Route::patch('/templates/toggle/{id}', [AdminController::class, 'toggleTemplate'])->name('templates.toggle');
+
+        //Settings
+        Route::post('/change-password', [AdminController::class, 'changePassword'])->name('change-password');
 });

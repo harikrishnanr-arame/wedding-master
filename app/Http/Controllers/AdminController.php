@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Template;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class AdminController
@@ -25,7 +26,6 @@ class AdminController extends Controller {
      * Display the admin dashboard page.
      */
     public function dashboard() {
-
         return view('admin.dashboard');
     }
 
@@ -33,7 +33,6 @@ class AdminController extends Controller {
      * Display the users management page.
      */
     public function users() {
-
         return view('admin.users');
     }
 
@@ -44,7 +43,6 @@ class AdminController extends Controller {
      * all users ordered by latest.
      */
     public function getUsers() {
-
         $users = User::latest()->get();
         return response()->json($users);
     }
@@ -56,7 +54,6 @@ class AdminController extends Controller {
      * Returns JSON success or error response.
      */
     public function deleteUser($id) {
-
         $user = User::findOrFail($id);
 
         if ($user->isAdmin()) {
@@ -78,7 +75,6 @@ class AdminController extends Controller {
      * Assigns role (admin/user)
      */
     public function storeUser(Request $request) {
-
         $request->validate([
             'user_name' => 'required|string|max:255',
             'email'     => 'required|email|unique:users,email',
@@ -101,8 +97,7 @@ class AdminController extends Controller {
     /**
      * Display the content management page.
      */
-    public function content()
-    {
+    public function content() {
         $templates = Template::latest()->get();
 
         return view('admin.manage-content', compact('templates'));
@@ -112,8 +107,8 @@ class AdminController extends Controller {
      * Display the admin settings page.
      */
     public function settings() {
-
-        return view('admin.settings');
+        $admin = Auth::user();
+        return view('admin.settings', compact('admin'));
     }
 
     /**
@@ -126,9 +121,7 @@ class AdminController extends Controller {
      * - Total failed payments
      */
     public function payments() {
-
         $payments = Payment::with('user')->latest()->get();
-
         $totalRevenue = Payment::where('status', 'paid')->sum('amount');
         $totalPending = Payment::where('status', 'pending')->sum('amount');
         $totalFailed  = Payment::where('status', 'failed')->sum('amount');
@@ -147,7 +140,6 @@ class AdminController extends Controller {
      * Returns payments with related user data.
      */
     public function getPayments() {
-
         $payments = Payment::with('user')->latest()->get();
         return response()->json($payments);
     }
@@ -158,7 +150,6 @@ class AdminController extends Controller {
      * Returns JSON success response.
      */
     public function deletePayment($id) {
-
         $payment = Payment::findOrFail($id);
         $payment->delete();
 
@@ -179,7 +170,6 @@ class AdminController extends Controller {
      * - Dumps error message if an exception occurs
      */
     public function storeTemplate(Request $request) {
-
         try {
 
             $request->validate([
@@ -225,7 +215,6 @@ class AdminController extends Controller {
      * - Redirects back with success message
      */
     public function deleteTemplate($id) {
-
         $template = Template::findOrFail($id);
 
         // Delete files from storage
@@ -259,13 +248,47 @@ class AdminController extends Controller {
      * @return RedirectResponse
      */
     public function toggleTemplate($id) {
-
         $template = Template::findOrFail($id);
-
         $template->is_active = !$template->is_active;
         $template->save();
 
         return redirect()->back()->with('success', 'Template status updated successfully!');
+    }
+
+    /**
+     * Change the authenticated user's password.
+     *
+     * - Validate incoming request data
+     *     • current_password (required)
+     *     • new_password (required, minimum 6 characters, must be confirmed)
+     * - Verify that the provided current password matches the stored password
+     * - Hash the new password securely using Laravel Hash facade
+     * - Update password_changed_at timestamp (optional security tracking)
+     * - Save updated user record
+     */
+    public function changePassword(Request $request) {
+        $request->validate([
+            'current_password' => 'required',
+            'new_password' => 'required|min:6|confirmed',
+        ]);
+
+        $user = Auth::user();
+
+        // Check current password
+        if (!Hash::check($request->current_password, $user->password)) {
+            return response()->json([
+                'error' => 'Current password is incorrect'
+            ], 400);
+        }
+
+        // Update password
+        $user->password = Hash::make($request->new_password);
+        $user->password_changed_at = now();
+        $user->save();
+
+        return response()->json([
+            'success' => 'Password updated successfully'
+        ]);
     }
 
 }

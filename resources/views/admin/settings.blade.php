@@ -15,13 +15,22 @@
         <h3>Admin Profile</h3>
 
         <div class="profile-section">
-            <div class="profile-img" id="profileInitial">A</div>
+            <div class="profile-img" id="profileInitial">
+                {{ strtoupper(substr($admin->user_name, 0, 1)) }}
+            </div>
 
             <div class="profile-info">
-                <p><strong>Name:</strong> <span id="adminName">Aswin Admin</span></p>
-                <p><strong>Email:</strong> <span id="adminEmail">admin@example.com</span></p>
-                <p><strong>Role:</strong> Super Admin</p>
+                <p><strong>Name:</strong> 
+                    <span id="adminName">{{ $admin->user_name }}</span>
+                </p>
 
+                <p><strong>Email:</strong> 
+                    <span id="adminEmail">{{ $admin->email }}</span>
+                </p>
+
+                <p><strong>Role:</strong> 
+                    {{ ucfirst($admin->role) }}
+                </p>
                 <button class="edit-btn" id="editProfile">Edit Profile</button>
             </div>
         </div>
@@ -49,90 +58,12 @@
         <button class="save-btn" id="changePasswordBtn">Update Password</button>
     </div>
 
-    <!-- General Settings -->
-    <div class="panel">
-        <h3>General Settings</h3>
-
-        <div class="toggle">
-            <span>Email Notifications</span>
-            <label class="switch">
-                <input type="checkbox" checked>
-                <span class="slider"></span>
-            </label>
-        </div>
-
-        <div class="toggle">
-            <span>Enable Dark Mode</span>
-            <label class="switch">
-                <input type="checkbox" id="darkModeToggle">
-                <span class="slider"></span>
-            </label>
-        </div>
-
-        <div class="toggle">
-            <span>Two-Factor Authentication</span>
-            <label class="switch">
-                <input type="checkbox">
-                <span class="slider"></span>
-            </label>
-        </div>
-
-    </div>
-
 </div>
 
 @endsection
 
 @section('scripts')
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
-<script>
-$(document).ready(function(){
-
-    $("#editProfile").click(function(){
-
-        let newName = prompt("Enter new name:", $("#adminName").text());
-        let newEmail = prompt("Enter new email:", $("#adminEmail").text());
-
-        if(newName) {
-            $("#adminName").text(newName);
-            $("#profileInitial").text(newName.charAt(0).toUpperCase());
-        }
-
-        if(newEmail){
-            $("#adminEmail").text(newEmail);
-        }
-    });
-
-    $("#changePasswordBtn").click(function(){
-
-        let newPass = $("#newPassword").val();
-        let confirmPass = $("#confirmPassword").val();
-
-        if(newPass.length < 6){
-            alert("Password must be at least 6 characters.");
-            return;
-        }
-
-        if(newPass !== confirmPass){
-            alert("Passwords do not match.");
-            return;
-        }
-
-        alert("Password updated successfully!");
-        $("input[type=password]").val("");
-    });
-
-    $("#darkModeToggle").change(function(){
-        if($(this).is(":checked")){
-            $("body").css("background","#1e1e2f");
-            $(".panel").css("background","#2b2b3c").css("color","white");
-        }else{
-            $("body").css("background","#eef2f7");
-            $(".panel").css("background","white").css("color","#000");
-        }
-    });
-
-});
-</script>
+<script src="{{ asset('js/admin-settings.js') }}"></script>
 @endsection
+
