@@ -27,3 +27,4 @@ environments/dev.php
 environments/stag.php
 composer.lock
 composer.lock
+environments/local.php

@@ -1,6 +1,6 @@
 <aside class="sidebar">
   <div class="profile">
-    <img src="{{ asset('assets/img/userdash/untitled (7).jpeg') }}" alt="User">
+    <img src="{{ asset('assets/img/userdash/user_img.jpeg') }}" alt="User">
     <h4>{{ auth()->user()->user_name }}</h4>
     <p>{{ auth()->user()->email }}</p>
     <p>{{ auth()->user()->mobile_number }}</p>
