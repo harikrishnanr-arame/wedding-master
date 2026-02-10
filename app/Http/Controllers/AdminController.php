@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Payment;
@@ -19,21 +18,22 @@ use Illuminate\Support\Facades\Storage;
  * - Manage payments (list, delete)
  * - Provide AJAX endpoints for dynamic data loading
  */
-class AdminController extends Controller {
+class AdminController extends Controller
+{
 
     /**
      * Display the admin dashboard page.
      */
-    public function dashboard() {
-
+    public function dashboard()
+    {
         return view('admin.dashboard');
     }
 
     /**
      * Display the users management page.
      */
-    public function users() {
-
+    public function users()
+    {
         return view('admin.users');
     }
 
@@ -43,8 +43,8 @@ class AdminController extends Controller {
      * Returns a JSON response containing
      * all users ordered by latest.
      */
-    public function getUsers() {
-
+    public function getUsers()
+    {
         $users = User::latest()->get();
         return response()->json($users);
     }
@@ -55,8 +55,8 @@ class AdminController extends Controller {
      * Prevents deletion of admin users.
      * Returns JSON success or error response.
      */
-    public function deleteUser($id) {
-
+    public function deleteUser($id)
+    {
         $user = User::findOrFail($id);
 
         if ($user->isAdmin()) {
@@ -77,8 +77,8 @@ class AdminController extends Controller {
      * Hashes password
      * Assigns role (admin/user)
      */
-    public function storeUser(Request $request) {
-
+    public function storeUser(Request $request)
+    {
         $request->validate([
             'user_name' => 'required|string|max:255',
             'email'     => 'required|email|unique:users,email',
@@ -111,8 +111,8 @@ class AdminController extends Controller {
     /**
      * Display the admin settings page.
      */
-    public function settings() {
-
+    public function settings()
+    {
         return view('admin.settings');
     }
 
@@ -125,10 +125,9 @@ class AdminController extends Controller {
      * - Total pending payments
      * - Total failed payments
      */
-    public function payments() {
-
+    public function payments()
+    {
         $payments = Payment::with('user')->latest()->get();
-
         $totalRevenue = Payment::where('status', 'paid')->sum('amount');
         $totalPending = Payment::where('status', 'pending')->sum('amount');
         $totalFailed  = Payment::where('status', 'failed')->sum('amount');
@@ -146,8 +145,8 @@ class AdminController extends Controller {
      *
      * Returns payments with related user data.
      */
-    public function getPayments() {
-
+    public function getPayments()
+    {
         $payments = Payment::with('user')->latest()->get();
         return response()->json($payments);
     }
@@ -157,8 +156,8 @@ class AdminController extends Controller {
      *
      * Returns JSON success response.
      */
-    public function deletePayment($id) {
-
+    public function deletePayment($id)
+    {
         $payment = Payment::findOrFail($id);
         $payment->delete();
 
@@ -178,9 +177,10 @@ class AdminController extends Controller {
      * - Redirects back with success message on completion
      * - Dumps error message if an exception occurs
      */
-    public function storeTemplate(Request $request) {
-        try {
-
+    public function storeTemplate(Request $request)
+    {
+        try 
+        {
             $request->validate([
                 'name' => 'required',
                 'category' => 'required',
@@ -203,8 +203,9 @@ class AdminController extends Controller {
             ]);
 
             return redirect()->back()->with('success', 'Template added successfully!');
-
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e)
+        {
 
             \Log::error('Template upload failed: ' . $e->getMessage());
 
@@ -225,7 +226,8 @@ class AdminController extends Controller {
      *
      * - Redirects back with success message
      */
-    public function deleteTemplate($id) {
+    public function deleteTemplate($id)
+    {
 
         $template = Template::findOrFail($id);
 
@@ -259,7 +261,8 @@ class AdminController extends Controller {
      * @param int $id Template ID
      * @return RedirectResponse
      */
-    public function toggleTemplate($id) {
+    public function toggleTemplate($id)
+    {
 
         $template = Template::findOrFail($id);
 
