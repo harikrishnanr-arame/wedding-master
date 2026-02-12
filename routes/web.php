@@ -7,6 +7,7 @@ use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DashboardController;
+use App\Models\Template;
 
 
 Route::get('/', [HomeController::class, 'home'])->name('home');
@@ -79,3 +80,6 @@ Route::prefix('admin')
         //Settings
         Route::post('/change-password', [AdminController::class, 'changePassword'])->name('change-password');
 });
+
+/* Template Edit Page*/
+Route::get('/template-edit/{id}', function ($id) { return view('templateEditPage', compact('id'));})->name('template.edit');
