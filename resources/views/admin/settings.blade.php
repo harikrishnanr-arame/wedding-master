@@ -31,7 +31,7 @@
                 <p><strong>Role:</strong> 
                     {{ ucfirst($admin->role) }}
                 </p>
-                <button class="edit-btn" id="editProfile">Edit Profile</button>
+                <!-- <button class="edit-btn" id="editProfile">Edit Profile</button> -->
             </div>
         </div>
     </div>
