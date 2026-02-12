@@ -83,7 +83,7 @@
                 required
                 minlength="6"
             >
-            <span class="eye" onclick="togglePassword('password')">👁</span>
+            <button type="button" class="eye" onclick="togglePassword('password')" aria-label="Toggle password visibility"aria-pressed="false">👁</button>
         </div>
         @error('password')
             <small class="error">{{ $message }}</small>
@@ -100,7 +100,7 @@
                 required
                 minlength="6"
             >
-            <span class="eye" onclick="togglePassword('confirmPassword')">👁</span>
+            <button type="button" class="eye" onclick="togglePassword('confirmPassword')" aria-label="Toggle confirm password visibility" aria-pressed="false">👁</button>
         </div>
 
         <button type="submit" class="signup-btn">SIGN UP</button>

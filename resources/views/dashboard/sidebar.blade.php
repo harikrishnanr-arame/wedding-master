@@ -7,16 +7,16 @@
   </div>
 
   <ul class="menu">
-    <li class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">
-      <a style="text-decoration: none; color: black;" href="{{ route('dashboard') }}">🏠 Dashboard</a>
+    <li class="{{ request()->routeIs('dashboard.profile') ? 'active' : '' }}">
+        <a style="text-decoration: none; color: black;" href="{{ route('dashboard.profile') }}">🏠 Dashboard</a>
     </li>
 
     <li class="{{ request()->routeIs('dashboard.templates') ? 'active' : '' }}">
-      <a style="text-decoration: none; color: black;" href="{{ route('dashboard.templates') }}">📄 Templates</a>
+        <a style="text-decoration: none; color: black;" href="{{ route('dashboard.templates') }}">📄 Templates</a>
     </li>
 
     <li class="{{ request()->routeIs('dashboard.payments') ? 'active' : '' }}">
-      <a style="text-decoration: none; color: black;" href="{{ route('dashboard.payments') }}">💳 Payments</a>
+        <a style="text-decoration: none; color: black;" href="{{ route('dashboard.payments') }}">💳 Payments</a>
     </li>
   </ul>
 

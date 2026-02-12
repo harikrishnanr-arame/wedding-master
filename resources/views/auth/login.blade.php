@@ -51,7 +51,7 @@
           id="password"
           required
         />
-        <span class="eye" onclick="togglePassword('password')">👁</span>
+        <button type="button" class="eye" onclick="togglePassword('password')"aria-label="Toggle password visibility">👁</button>
       </div>
       <small id="passwordError" style="color:red;"></small>
 

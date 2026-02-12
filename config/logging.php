@@ -5,6 +5,18 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
 use Monolog\Processor\PsrLogMessageProcessor;
 
+/*
+|--------------------------------------------------------------------------
+| Log File Constant
+|--------------------------------------------------------------------------
+|
+| This constant defines the default Laravel log file path.
+| It prevents duplication of the literal "logs/laravel.log"
+| across multiple log channel configurations.
+|
+*/
+const LARAVEL_LOG_FILE = 'logs/laravel.log';
+
 return [
 
     /*
@@ -60,14 +72,14 @@ return [
 
         'single' => [
             'driver' => 'single',
-            'path' => storage_path('logs/laravel.log'),
+            'path' => storage_path(LARAVEL_LOG_FILE),
             'level' => env('LOG_LEVEL', 'debug'),
             'replace_placeholders' => true,
         ],
 
         'daily' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/laravel.log'),
+            'path' => storage_path(LARAVEL_LOG_FILE),
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => env('LOG_DAILY_DAYS', 14),
             'replace_placeholders' => true,
@@ -138,7 +150,7 @@ return [
         ],
 
         'emergency' => [
-            'path' => storage_path('logs/laravel.log'),
+            'path' => storage_path(LARAVEL_LOG_FILE),
         ],
 
     ],

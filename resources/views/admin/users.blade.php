@@ -38,28 +38,43 @@
             </div>
 
             <div class="modal-body">
+
                 <div class="form-group">
-                    <label>Name</label>
-                    <input type="text" id="newName" placeholder="Enter name">
+                    <label for="newName">Name</label>
+                    <input 
+                        type="text" 
+                        id="newName" 
+                        name="name"
+                        placeholder="Enter name">
                 </div>
 
                 <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="newEmail" placeholder="Enter email">
+                    <label for="newEmail">Email</label>
+                    <input 
+                        type="email" 
+                        id="newEmail" 
+                        name="email"
+                        placeholder="Enter email">
                 </div>
 
                 <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="newPassword" placeholder="Enter password">
+                    <label for="newPassword">Password</label>
+                    <input 
+                        type="password" 
+                        id="newPassword" 
+                        name="password"
+                        placeholder="Enter password"
+                        autocomplete="new-password">
                 </div>
 
                 <div class="form-group">
-                    <label>Role</label>
-                    <select id="newRole">
+                    <label for="newRole">Role</label>
+                    <select id="newRole" name="role">
                         <option value="0">User</option>
                         <option value="1">Admin</option>
                     </select>
                 </div>
+
             </div>
 
             <div class="modal-footer">

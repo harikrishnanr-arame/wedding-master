@@ -31,7 +31,6 @@
                 <p><strong>Role:</strong> 
                     {{ ucfirst($admin->role) }}
                 </p>
-                <!-- <button class="edit-btn" id="editProfile">Edit Profile</button> -->
             </div>
         </div>
     </div>
@@ -41,18 +40,18 @@
         <h3>Change Password</h3>
 
         <div class="form-group">
-            <label>Current Password</label>
-            <input type="password" id="currentPassword">
+            <label for="currentPassword">Current Password</label>
+            <input type="password" id="currentPassword" name="current_password">
         </div>
 
         <div class="form-group">
-            <label>New Password</label>
-            <input type="password" id="newPassword">
+            <label for="newPassword">New Password</label>
+            <input type="password" id="newPassword" name="new_password">
         </div>
 
         <div class="form-group">
-            <label>Confirm Password</label>
-            <input type="password" id="confirmPassword">
+            <label for="confirmPassword">Confirm Password</label>
+            <input type="password" id="confirmPassword" name="confirm_password">
         </div>
 
         <button class="save-btn" id="changePasswordBtn">Update Password</button>

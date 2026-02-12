@@ -9,6 +9,7 @@
 .cta-content {
   max-width: 800px;
   margin: auto;
+  animation: fadeUp 1s ease both;
 }
 
 /* TITLE */
@@ -35,10 +36,6 @@
 .cta-btn:hover {
   background: #677765;
   transform: translateY(-2px);
-}
-
-.cta-content {
-  animation: fadeUp 1s ease both;
 }
 
 .cta-copyright {

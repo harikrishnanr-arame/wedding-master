@@ -42,33 +42,47 @@ class LoginController extends Controller {
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function login(Request $request) {
+   public function login(Request $request)
+    {
         try {
             $credentials = $request->validate([
                 'email' => 'required|email',
                 'password' => 'required',
             ]);
 
+            $response = null;
+
             if (Auth::attempt($credentials)) {
                 $request->session()->regenerate();
 
-                if (auth()->user()->isAdmin()) {
-                    return redirect('/admin/dashboard')
-                        ->with('success', 'Welcome Admin');
-                }
+                $redirectPath = auth()->user()->isAdmin()
+                    ? '/admin/dashboard'
+                    : '/';
 
-                return redirect('/')->with('success', 'Logged in successfully');
+                $message = auth()->user()->isAdmin()
+                    ? 'Welcome Admin'
+                    : 'Logged in successfully';
+
+                $response = redirect($redirectPath)->with('success', $message);
+            } else {
+                $response = back()->withErrors([
+                    'email' => 'Invalid email or password',
+                ]);
             }
 
-            return back()->withErrors([
-                'email' => 'Invalid email or password',
-            ]);
+            return $response;
+
         } catch (\Exception $e) {
+
             Log::channel('custom_log')->error('Error in LoginController@login: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
                 'request' => $request->all()
             ]);
-            return back()->withErrors(['email' => 'An error occurred. Please try again.']);
+
+            return back()->withErrors([
+                'email' => 'An error occurred. Please try again.'
+            ]);
+
         } finally {
             Log::channel('custom_log')->info('LoginController@login method executed');
         }

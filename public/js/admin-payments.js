@@ -64,9 +64,9 @@ $(document).ready(function() {
         payments.forEach(p => {
             const status = p.status.toLowerCase();
 
-            if (status === 'paid') totalRevenue += parseFloat(p.amount);
-            if (status === 'pending') totalPending += parseFloat(p.amount);
-            if (status === 'failed') totalFailed += parseFloat(p.amount);
+            if (status === 'paid') totalRevenue += Number.parseFloat(p.amount);
+            if (status === 'pending') totalPending += Number.parseFloat(p.amount);
+            if (status === 'failed') totalFailed += Number.parseFloat(p.amount);
         });
 
         $("#totalRevenue").text('₹ ' + totalRevenue.toFixed(2));
