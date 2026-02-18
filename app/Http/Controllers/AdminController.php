@@ -58,7 +58,6 @@ class AdminController extends Controller
     public function deleteUser($id)
     {
         $user = User::findOrFail($id);
-
         if ($user->isAdmin()) {
             return response()->json([
                 'error' => 'Cannot delete admin'
@@ -104,7 +103,6 @@ class AdminController extends Controller
     public function content()
     {
         $templates = Template::latest()->get();
-
         return view('admin.manage-content', compact('templates'));
     }
 
@@ -160,7 +158,6 @@ class AdminController extends Controller
     {
         $payment = Payment::findOrFail($id);
         $payment->delete();
-
         return response()->json(['success' => true]);
     }
 
@@ -179,8 +176,8 @@ class AdminController extends Controller
      */
     public function storeTemplate(Request $request)
     {
-        try 
-        {
+        try {
+
             $request->validate([
                 'name' => 'required',
                 'category' => 'required',
@@ -203,12 +200,9 @@ class AdminController extends Controller
             ]);
 
             return redirect()->back()->with('success', 'Template added successfully!');
-        }
-        catch (\Exception $e)
-        {
 
+        } catch (\Exception $e) {
             \Log::error('Template upload failed: ' . $e->getMessage());
-
             return redirect()->back()->with('error', 'Something went wrong while uploading template.');
         }
     }
@@ -226,11 +220,9 @@ class AdminController extends Controller
      *
      * - Redirects back with success message
      */
-    public function deleteTemplate($id)
+    public function deleteTemplate($id) 
     {
-
         $template = Template::findOrFail($id);
-
         // Delete files from storage
         if ($template->cover_image && Storage::disk('public')->exists($template->cover_image)) {
             Storage::disk('public')->delete($template->cover_image);
@@ -263,9 +255,7 @@ class AdminController extends Controller
      */
     public function toggleTemplate($id)
     {
-
         $template = Template::findOrFail($id);
-
         $template->is_active = !$template->is_active;
         $template->save();
 

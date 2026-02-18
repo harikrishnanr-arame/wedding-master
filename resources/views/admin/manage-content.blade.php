@@ -112,7 +112,6 @@
 
 @endsection
 
-
 @section('scripts')
 
 <script>

@@ -8,7 +8,6 @@ use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DashboardController;
 
-
 Route::get('/', [HomeController::class, 'home'])->name('home');
 
 /* Authentication*/

@@ -83,8 +83,17 @@ class LoginController extends Controller
         }
     }
 
-    public function logout()
-    {
+    /**
+     * Log out the currently authenticated user.
+     *
+     * This method:
+     * - Logs the user out using Laravel Auth.
+     * - Invalidates the current session to prevent reuse.
+     * - Regenerates the CSRF token for security.
+     * - Redirects the user to the home page.
+     */
+    public function logout() {
+        
         Auth::logout();
         request()->session()->invalidate();
         request()->session()->regenerateToken();

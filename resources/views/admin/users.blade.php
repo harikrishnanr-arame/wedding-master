@@ -118,26 +118,41 @@ $(document).ready(function() {
     }
 
     // DELETE
-    $(document).on("click", ".delete", function() {
+    $(document).on("click", ".delete", function () {
 
-        if (!confirm("Are you sure you want to delete this user?")) return;
+        let isConfirmed = confirm("Are you sure you want to delete this user?");
 
-        let id = $(this).data("id");
+        if (isConfirmed === true) {
 
-        $.ajax({
-            url: "{{ url('admin/users/delete') }}/" + id,
-            type: "DELETE",
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(response) {
-                if(response.error){
-                    alert(response.error);
-                } else {
-                    loadUsers();
+            let id = $(this).data("id");
+
+            $.ajax({
+                url: "{{ url('admin/users/delete') }}/" + id,
+                type: "DELETE",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (response) {
+
+                    if (response.error) {
+                        alert(response.error);
+                    } else {
+                        loadUsers();
+                    }
+
+                },
+                error: function () {
+                    alert("Something went wrong. Please try again.");
                 }
-            }
-        });
+            });
+
+        } else {
+
+            // Negative case
+            console.log("User cancelled the delete action.");
+            return;
+
+        }
 
     });
 
