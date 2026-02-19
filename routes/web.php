@@ -7,6 +7,8 @@ use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DashboardController;
+use App\Models\Template;
+
 
 Route::get('/', [HomeController::class, 'home'])->name('home');
 
@@ -74,4 +76,22 @@ Route::prefix('admin')
         Route::post('/templates/store', [AdminController::class, 'storeTemplate'])->name('templates.store');
         Route::delete('/templates/delete/{id}', [AdminController::class, 'deleteTemplate'])->name('templates.delete');
         Route::patch('/templates/toggle/{id}', [AdminController::class, 'toggleTemplate'])->name('templates.toggle');
+
+        //Settings
+        Route::post('/change-password', [AdminController::class, 'changePassword'])->name('change-password');
 });
+
+/* Template Edit Page*/
+// Route::get('/template-edit/{id}', function ($id) { return view('templateEditPage', compact('id'));})->name('template.edit');
+
+Route::post('/template/create/{id}', [DashboardController::class, 'createTemplate'])
+    ->middleware('auth')
+    ->name('template.create');
+
+Route::get('/template-edit/{id}', [DashboardController::class, 'editTemplate'])
+    ->middleware('auth')
+    ->name('template.edit');
+
+Route::post('/template-save/{id}', [DashboardController::class, 'saveTemplate'])
+    ->middleware('auth')
+    ->name('template.save');

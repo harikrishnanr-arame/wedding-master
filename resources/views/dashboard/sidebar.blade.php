@@ -7,18 +7,45 @@
   </div>
 
   <ul class="menu">
-    <li class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">
-      <a style="text-decoration: none; color: black;" href="{{ route('dashboard.profile') }}">🏠 Dashboard</a>
-    </li>
 
-    <li class="{{ request()->routeIs('dashboard.templates') ? 'active' : '' }}">
-      <a style="text-decoration: none; color: black;" href="{{ route('dashboard.templates') }}">📄 Templates</a>
-    </li>
+  {{-- Home --}}
+  <li>
+    <a href="{{ route('home') }}">
+      🏡 Home
+    </a>
+  </li>
 
-    <li class="{{ request()->routeIs('dashboard.payments') ? 'active' : '' }}">
-      <a style="text-decoration: none; color: black;" href="{{ route('dashboard.payments') }}">💳 Payments</a>
-    </li>
-  </ul>
+  {{-- Dashboard --}}
+  <li class="{{ request()->routeIs('dashboard.profile') ? 'active' : '' }}">
+    <a href="{{ route('dashboard.profile') }}">
+      🏠 Dashboard
+    </a>
+  </li>
+
+  {{-- Templates --}}
+  <li class="{{ request()->routeIs('dashboard.templates') ? 'active' : '' }}">
+    <a href="{{ route('dashboard.templates') }}">
+      📄 Templates
+    </a>
+  </li>
+
+  {{-- Currently Editing --}}
+  @if(isset($latestTemplate))
+      <li class="{{ request()->routeIs('template.edit') ? 'active' : '' }}">
+          <a href="{{ route('template.edit', $latestTemplate->id) }}">
+              ✏️ Editing: {{ $latestTemplate->title }}
+          </a>
+      </li>
+  @endif
+
+  {{-- Payments --}}
+  <li class="{{ request()->routeIs('dashboard.payments') ? 'active' : '' }}">
+    <a href="{{ route('dashboard.payments') }}">
+      💳 Payments
+    </a>
+  </li>
+
+</ul>
 
   <form method="POST" action="{{ route('logout') }}">
     @csrf
