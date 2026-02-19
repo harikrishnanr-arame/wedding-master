@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Http\Middleware;
-
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,14 +10,15 @@ use Symfony\Component\HttpFoundation\Response;
  * Ensures only authenticated users with 'admin' role
  * can access protected routes.
  */
-class AdminMiddleware {
+class AdminMiddleware
+{
     
-    public function handle(Request $request, Closure $next): Response {
-        
-        if (!auth()->check() || auth()->user()->role !== 'admin') {
+    public function handle(Request $request, Closure $next): Response 
+    {    
+        if (!auth()->check() || auth()->user()->role !== 'admin') 
+        {
             abort(403, 'Unauthorized access');
         }
-
         return $next($request);
     }
 }

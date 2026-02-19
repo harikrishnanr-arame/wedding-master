@@ -1,4 +1,4 @@
-/**
+<!-- /**
  * Forgot Password View
  *
  * This view renders the password reset request form.
@@ -10,7 +10,7 @@
  * - Submit the form to the password.email route
  *
  * Part of Laravel's authentication password reset flow.
- */
+ */ -->
 
 <!DOCTYPE html>
 <html>

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -17,19 +16,20 @@ use Exception;
  * - Create or update user record
  * - Log the user into the application
  */
-class GoogleAuthController extends Controller {
+class GoogleAuthController extends Controller
+{
     
     /**
      * Redirect the user to Google's OAuth authentication page.
      */
-    public function redirect() {
-
-        try {
-
+    public function redirect()
+    {
+        try
+        {
             return Socialite::driver('google')->redirect();
-
-        } catch (Exception $e) {
-
+        }
+        catch (Exception $e)
+        {
             return redirect('/login')
                 ->with('error', 'Unable to connect to Google. Please try again.');
         }
@@ -44,17 +44,18 @@ class GoogleAuthController extends Controller {
      * Updates existing user with Google ID if missing
      * Logs the user into the application
      */
-    public function callback() {
-
-        try {
-
+    public function callback()
+    {
+        try
+        {
             $googleUser = Socialite::driver('google')->user();
 
             // First try to find by google_id
             $user = User::where('google_id', $googleUser->id)->first();
 
             // If not found, find by email or create
-            if (!$user) {
+            if (!$user) 
+            {
                 $user = User::firstOrCreate(
                     ['email' => $googleUser->email],
                     [
@@ -66,7 +67,8 @@ class GoogleAuthController extends Controller {
                 );
 
                 // If user exists but google_id is null, update it
-                if (!$user->google_id) {
+                if (!$user->google_id) 
+                {
                     $user->update([
                         'google_id' => $googleUser->id
                     ]);
@@ -76,11 +78,10 @@ class GoogleAuthController extends Controller {
             Auth::login($user, true);
 
             return redirect('/')->with('success', 'Logged in with Google');
-
-        } catch (Exception $e) {
-
-            return redirect('/login')
-                ->with('error', 'Google login failed. Please try again.');
+        }
+        catch (Exception $e)
+        {
+            return redirect('/login')->with('error', 'Google login failed. Please try again.');
         }
     }
 }
