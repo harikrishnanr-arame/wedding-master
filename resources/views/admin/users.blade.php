@@ -120,39 +120,60 @@ $(document).ready(function() {
     // DELETE
     $(document).on("click", ".delete", function () {
 
-        let isConfirmed = confirm("Are you sure you want to delete this user?");
+        let id = $(this).data("id");
 
-        if (isConfirmed === true) {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "This user will be permanently deleted!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#6c757d",
+            confirmButtonText: "Yes, delete it!",
+            cancelButtonText: "Cancel"
+        }).then((result) => {
 
-            let id = $(this).data("id");
+            if (result.isConfirmed) {
 
-            $.ajax({
-                url: "{{ url('admin/users/delete') }}/" + id,
-                type: "DELETE",
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function (response) {
+                $.ajax({
+                    url: "{{ url('admin/users/delete') }}/" + id,
+                    type: "DELETE",
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function (response) {
 
-                    if (response.error) {
-                        alert(response.error);
-                    } else {
-                        loadUsers();
+                        if (response.error) {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Error",
+                                text: response.error
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: "success",
+                                title: "Deleted!",
+                                text: "User has been deleted successfully.",
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+
+                            loadUsers();
+                        }
+
+                    },
+                    error: function () {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Oops...",
+                            text: "Something went wrong. Please try again."
+                        });
                     }
+                });
 
-                },
-                error: function () {
-                    alert("Something went wrong. Please try again.");
-                }
-            });
+            }
 
-        } else {
-
-            // Negative case
-            console.log("User cancelled the delete action.");
-            return;
-
-        }
+        });
 
     });
 

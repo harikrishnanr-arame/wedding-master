@@ -20,7 +20,6 @@ use Illuminate\Support\Facades\Storage;
  */
 class AdminController extends Controller
 {
-
     /**
      * Display the admin dashboard page.
      */
@@ -177,7 +176,6 @@ class AdminController extends Controller
     public function storeTemplate(Request $request)
     {
         try {
-
             $request->validate([
                 'name' => 'required',
                 'category' => 'required',

@@ -84,8 +84,6 @@
 @endsection
 
 @section('scripts')
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
 <script>
 $(document).ready(function(){
 
@@ -104,22 +102,38 @@ $(document).ready(function(){
         }
     });
 
-    $("#changePasswordBtn").click(function(){
+    $("#changePasswordBtn").click(function () {
 
         let newPass = $("#newPassword").val();
         let confirmPass = $("#confirmPassword").val();
 
-        if(newPass.length < 6){
-            alert("Password must be at least 6 characters.");
+        if (newPass.length < 6) {
+            Swal.fire({
+                icon: "error",
+                title: "Invalid Password",
+                text: "Password must be at least 6 characters.",
+                confirmButtonColor: "#d33"
+            });
             return;
         }
 
-        if(newPass !== confirmPass){
-            alert("Passwords do not match.");
+        if (newPass !== confirmPass) {
+            Swal.fire({
+                icon: "warning",
+                title: "Password Mismatch",
+                text: "Passwords do not match.",
+                confirmButtonColor: "#f39c12"
+            });
             return;
         }
 
-        alert("Password updated successfully!");
+        Swal.fire({
+            icon: "success",
+            title: "Success!",
+            text: "Password updated successfully!",
+            confirmButtonColor: "#3085d6"
+        });
+
         $("input[type=password]").val("");
     });
 
