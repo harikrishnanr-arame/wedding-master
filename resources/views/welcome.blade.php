@@ -57,9 +57,14 @@
                     <h3>{{ $template->name }}</h3>
 
                     <div class="template-actions">
-                        <button onclick="location.href='{{ route('template.edit', $template->id) }}'">
-                            Choose This Template
-                        </button>
+
+                        <!-- POST form to create a new user template -->
+                        <form method="POST" action="{{ route('template.create', $template->id) }}">
+                            @csrf
+                            <button type="submit" class="choose-btn">
+                                Choose This Template
+                            </button>
+                        </form>
 
                         <span class="heart">♡</span>
                     </div>

@@ -82,4 +82,19 @@ Route::prefix('admin')
 });
 
 /* Template Edit Page*/
-Route::get('/template-edit/{id}', function ($id) { return view('templateEditPage', compact('id'));})->name('template.edit');
+// Route::get('/template-edit/{id}', function ($id) { return view('templateEditPage', compact('id'));})->name('template.edit');
+
+Route::post('/template/create/{id}', [DashboardController::class, 'createTemplate'])
+    ->middleware('auth')
+    ->name('template.create');
+
+Route::get('/template-edit/{id}', [DashboardController::class, 'editTemplate'])
+    ->middleware('auth')
+    ->name('template.edit');
+
+Route::post('/template-save/{id}', [DashboardController::class, 'saveTemplate'])
+    ->middleware('auth')
+    ->name('template.save');
+Route::post('/template/upload-image', [DashboardController::class, 'uploadImage'])
+    ->middleware('auth')
+    ->name('template.upload');
