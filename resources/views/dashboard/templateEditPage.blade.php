@@ -54,7 +54,6 @@
     }
     .form-control:focus { border-color: var(--accent); outline: none; }
     
-    /* Repeater Items */
     .repeater-item { 
         background: #f8f9fa; padding: 15px; border-radius: 10px; 
         margin-bottom: 15px; border: 1px solid #eee; position: relative;
@@ -66,7 +65,6 @@
     }
     .add-btn:hover { border-color: var(--accent); color: var(--accent); background: #fff0f6; }
     
-    /* Image Upload Zone */
     .drop-zone { 
         border: 2px dashed #ddd; padding: 20px; text-align: center; border-radius: 10px; 
         cursor: pointer; position: relative; transition: 0.3s; background: #fafafa;
@@ -112,14 +110,15 @@
                                 <p style="font-size: 12px; margin:0;">+ Add Gallery Images</p>
                                 <input type="file" hidden accept="image/*" multiple>
                             </div>
-                            <div id="gallery-preview-sidebar" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 10px;">
-                                {{-- Thumbnails will be injected here --}}
-                            </div>
-                        </div>    
+                        </div> 
                     
                     @elseif($field['type'] == 'toggle')
                         <div style="display:flex; align-items:center; gap:10px;">
-                            <input type="checkbox" style="width:20px; height:20px;" data-field="{{ $field['name'] }}" {{ !empty($content[$field['name']]) ? 'checked' : '' }}>
+                            {{-- IMPORTANT: Default to 'checked' if value is not set --}}
+                            <input type="checkbox" 
+                                   style="width:20px; height:20px;" 
+                                   data-field="{{ $field['name'] }}" 
+                                   {{ (!isset($content[$field['name']]) || $content[$field['name']] == 1) ? 'checked' : '' }}>
                             <span style="font-size:14px;">Show this section</span>
                         </div>
 
@@ -140,7 +139,6 @@
                             <button type="button" class="add-btn" onclick="addRepeater('{{ $field['name'] }}')">+ Add {{ $field['label'] }}</button>
                         </div>
                     @endif
-                    
                 </div>
             @endforeach
         </div>
@@ -168,7 +166,7 @@ document.addEventListener("DOMContentLoaded", function(){
         loadRepeatersToSidebar();
     };
 
-    let lastTimerDate = null; // Track the date to prevent re-triggering the timer
+    let lastTimerDate = null;
 
     function renderAll() {
         if (!doc) return;
@@ -179,13 +177,15 @@ document.addEventListener("DOMContentLoaded", function(){
             if (content[key] !== undefined) el.textContent = content[key];
         });
 
-        // 2. Visibility Toggles
+        // 2. Visibility Toggles - DEFAULT TO VISIBLE IF UNDEFINED
         doc.querySelectorAll("[data-edit-toggle]").forEach(el => {
             const key = el.dataset.editToggle;
-            el.style.display = content[key] ? "" : "none";
+            // If the key doesn't exist in content, we assume it should be VISIBLE (1)
+            const isVisible = (content[key] === undefined) ? true : (content[key] == 1);
+            el.style.display = isVisible ? "" : "none";
         });
 
-        // 3. Images (Bride, Groom, etc)
+        // 3. Images
         doc.querySelectorAll("[data-edit-image]").forEach(el => {
             const key = el.dataset.editImage;
             if (content[key]) el.src = content[key].startsWith("data:") ? content[key] : "/storage/" + content[key];
@@ -200,29 +200,27 @@ document.addEventListener("DOMContentLoaded", function(){
             }
         });
 
-        // 5. FIXED: Countdown Trigger (Prevents Flickering)
+        // 5. Timer
         if (content.countdown_target && content.countdown_target !== lastTimerDate) {
-            lastTimerDate = content.countdown_target; // Update the state
+            lastTimerDate = content.countdown_target;
             if (iframe.contentWindow.startTimer) {
                 iframe.contentWindow.startTimer(content.countdown_target);
             }
         }
 
-        // 6. Global Theme Color
+        // 6. Primary Color
         if (content.primary_color) {
             doc.documentElement.style.setProperty('--primary', content.primary_color);
         }
 
         renderRepeaters();
         renderMap();
-        renderGallery(); // Added call
+        renderGallery();
     }
 
-    // 7. NEW: Gallery Rendering Logic
     function renderGallery() {
         const galleryBox = doc.getElementById("dynamicGallery");
         if (galleryBox && content.gallery) {
-            // Handle gallery if it's an array of image strings
             galleryBox.innerHTML = content.gallery.map(img => `
                 <img src="${img.startsWith('data:') ? img : '/storage/' + img}">
             `).join('');
@@ -230,7 +228,6 @@ document.addEventListener("DOMContentLoaded", function(){
     }
 
     function renderRepeaters() {
-        // Story Rendering
         const storyBox = doc.getElementById("loveStoryContainer");
         if(storyBox && content.love_story) {
             storyBox.innerHTML = content.love_story.map(item => `
@@ -244,7 +241,6 @@ document.addEventListener("DOMContentLoaded", function(){
             `).join('');
         }
 
-        // Schedule Rendering
         const eventBox = doc.getElementById("eventsContainer");
         if(eventBox && content.events) {
             eventBox.innerHTML = content.events.map(item => `
@@ -267,24 +263,32 @@ document.addEventListener("DOMContentLoaded", function(){
 
     // Input Event Listeners
     document.querySelectorAll("[data-field]").forEach(input => {
-        input.addEventListener("input", function() {
+        input.addEventListener("change", function() {
             const key = this.dataset.field;
             content[key] = (this.type === "checkbox") ? (this.checked ? 1 : 0) : this.value;
             renderAll();
         });
+        // Added 'input' for real-time text typing
+        if(input.type !== "checkbox" && input.type !== "file") {
+            input.addEventListener("input", function() {
+                content[this.dataset.field] = this.value;
+                renderAll();
+            });
+        }
     });
 
     // Image Upload Logic
     document.querySelectorAll(".drop-zone").forEach(zone => {
         const input = zone.querySelector("input");
         const key = zone.dataset.field;
-        zone.onclick = () => input.click();
+        zone.onclick = (e) => { if(e.target !== input) input.click(); };
         input.onchange = () => {
+            if(!input.files.length) return;
             const reader = new FileReader();
             reader.onload = e => {
                 content[key] = e.target.result;
                 const container = zone.querySelector(".img-preview-container");
-                container.innerHTML = `<img class="preview-img-sm" src="${e.target.result}">`;
+                if(container) container.innerHTML = `<img class="preview-img-sm" src="${e.target.result}">`;
                 renderAll();
             };
             reader.readAsDataURL(input.files[0]);
@@ -299,14 +303,19 @@ document.addEventListener("DOMContentLoaded", function(){
 
     window.addRepeater = function(name, data = null, existingIdx = null) {
         const container = document.querySelector(`[data-repeater="${name}"] .repeater-container`);
-        const index = existingIdx !== null ? existingIdx : container.children.length;
+        const index = existingIdx !== null ? existingIdx : (content[name] ? content[name].length : 0);
+        
         if(!content[name]) content[name] = [];
-        if(data === null) content[name].push({title: '', description: '', image: '', date: '', location: ''});
+        if(data === null) {
+            const newItem = {title: '', description: '', image: '', date: '', location: ''};
+            content[name].push(newItem);
+            data = newItem;
+        }
 
         let html = '';
         if(name === 'love_story') {
             html = `
-            <div class="repeater-item">
+            <div class="repeater-item" data-index="${index}">
                 <input type="text" placeholder="Milestone Title" class="form-control" value="${data?.title || ''}" oninput="updateRep('${name}',${index},'title',this.value)">
                 <textarea style="margin-top:5px" placeholder="Details..." class="form-control" oninput="updateRep('${name}',${index},'description',this.value)">${data?.description || ''}</textarea>
                 <input type="file" style="margin-top:5px; font-size:11px;" onchange="updateRepFile('${name}',${index},'image',this)">
@@ -314,9 +323,9 @@ document.addEventListener("DOMContentLoaded", function(){
             </div>`;
         } else if(name === 'events') {
             html = `
-            <div class="repeater-item">
-                <input type="text" placeholder="Event (e.g. Reception)" class="form-control" value="${data?.title || ''}" oninput="updateRep('${name}',${index},'title',this.value)">
-                <input type="text" style="margin-top:5px" placeholder="Time" class="form-control" value="${data?.date || ''}" oninput="updateRep('${name}',${index},'date',this.value)">
+            <div class="repeater-item" data-index="${index}">
+                <input type="text" placeholder="Event Name" class="form-control" value="${data?.title || ''}" oninput="updateRep('${name}',${index},'title',this.value)">
+                <input type="text" style="margin-top:5px" placeholder="Time/Date" class="form-control" value="${data?.date || ''}" oninput="updateRep('${name}',${index},'date',this.value)">
                 <input type="text" style="margin-top:5px" placeholder="Location" class="form-control" value="${data?.location || ''}" oninput="updateRep('${name}',${index},'location',this.value)">
                 <button class="remove-btn" onclick="removeRep('${name}', ${index}, this)">Remove Event</button>
             </div>`;
@@ -335,40 +344,51 @@ document.addEventListener("DOMContentLoaded", function(){
     // SAVE AJAX
     document.getElementById("saveBtn").onclick = async () => {
         const btn = document.getElementById("saveBtn");
-        btn.innerText = "Processing...";
+        btn.innerText = "Saving...";
         btn.disabled = true;
-        
+
+        // Debug: Check size in MB
+        const size = new Blob([JSON.stringify(content)]).size / 1024 / 1024;
+        console.log("Payload Size: " + size.toFixed(2) + " MB");
+
         try {
             const response = await fetch("{{ route('template.save', $userTemplate->id) }}", {
                 method: "POST",
-                headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": "{{ csrf_token() }}" },
-                body: JSON.stringify({ content: content })
+                headers: { 
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}" 
+                },
+                body: JSON.stringify({ content: content }) 
             });
-            if(response.ok) alert("Your Wedding Site has been published successfully!");
-        } catch (e) { alert("Save failed. Please check your connection."); }
-        btn.innerText = "Save & Publish Site";
-        btn.disabled = false;
+
+            const result = await response.json();
+            if (response.ok) {
+                alert("Site Published!");
+            } else {
+                alert("Error: " + result.message);
+            }
+        } catch (e) {
+            alert("Request failed. This is likely due to server 'post_max_size' limits.");
+        } finally {
+            btn.innerText = "Save & Publish Site";
+            btn.disabled = false;
+        }
     };
 
-    // Add this inside your "Image Upload Logic" or as a new listener
-    document.querySelectorAll("input[type='file']").forEach(input => {
+    // Gallery Handler
+    document.querySelectorAll("input[type='file'][multiple]").forEach(input => {
         input.addEventListener("change", function() {
-            const fieldName = this.closest('[data-field]')?.dataset.field || this.dataset.field;
-            
-            // If it's the gallery field, we handle multiple files
-            if (fieldName === 'gallery') {
-                const files = Array.from(this.files);
-                content[fieldName] = []; // Clear current gallery for new uploads
-                
-                files.forEach(file => {
-                    const reader = new FileReader();
-                    reader.onload = e => {
-                        content[fieldName].push(e.target.result);
-                        renderAll(); // Refresh preview
-                    };
-                    reader.readAsDataURL(file);
-                });
-            }
+            const fieldName = 'gallery';
+            if(!content[fieldName]) content[fieldName] = [];
+            Array.from(this.files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    content[fieldName].push(e.target.result);
+                    renderAll();
+                };
+                reader.readAsDataURL(file);
+            });
         });
     });
 });

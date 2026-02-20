@@ -95,3 +95,6 @@ Route::get('/template-edit/{id}', [DashboardController::class, 'editTemplate'])
 Route::post('/template-save/{id}', [DashboardController::class, 'saveTemplate'])
     ->middleware('auth')
     ->name('template.save');
+Route::post('/template/upload-image', [DashboardController::class, 'uploadImage'])
+    ->middleware('auth')
+    ->name('template.upload');

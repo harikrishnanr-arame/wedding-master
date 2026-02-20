@@ -23,9 +23,24 @@ class DashboardController extends Controller
             'title' => 'My Wedding Website'
         ]);
 
+        // PRE-FILL with default "Visible" settings and placeholder items
+        $defaultContent = [
+            'show_countdown' => 1,
+            'show_story' => 1,
+            'show_events' => 1,
+            'show_gallery' => 1,
+            'couple_name' => 'Romeo & Juliet',
+            'love_story' => [
+                ['title' => 'The First Meeting', 'description' => 'It all started here...', 'image' => '']
+            ],
+            'events' => [
+                ['title' => 'Ceremony', 'date' => 'Sept 24, 2026', 'location' => 'St. Peters']
+            ]
+        ];
+
         UserTemplateContent::create([
             'user_template_id' => $userTemplate->id,
-            'content_json' => json_encode([])
+            'content_json' => json_encode($defaultContent)
         ]);
 
         return redirect()->route('template.edit', $userTemplate->id);
@@ -47,40 +62,32 @@ class DashboardController extends Controller
 
     public function saveTemplate(Request $request, $id)
     {
-        $userTemplate = UserTemplate::where('user_id', auth()->id())
-            ->with(['content', 'template'])
-            ->findOrFail($id);
+        // 1. Find the template
+        $userTemplate = UserTemplate::where('user_id', auth()->id())->findOrFail($id);
 
-        $existing = $userTemplate->content ? json_decode($userTemplate->content->content_json, true) : [];
-        $content = array_merge($existing, $request->input('content', []));
-
-        $fields = $userTemplate->template->fields ?? [];
-
-        foreach($fields as $field){
-            if($field['type'] === 'image' && $request->hasFile($field['name'])){
-                $content[$field['name']] = $request->file($field['name'])->store('templates', 'public');
-            }
+        // 2. Get the content (Try standard input first, then raw body)
+        $content = $request->input('content');
+        
+        if (!$content) {
+            $rawBody = json_decode($request->getContent(), true);
+            $content = $rawBody['content'] ?? null;
         }
 
-        // Handle gallery uploads
-        foreach($fields as $field){
-            if($field['type'] === 'gallery' && $request->hasFile($field['name'])){
-                foreach($request->file($field['name']) as $image){
-                    $path = $image->store('galleries','public');
-                    Gallery::create([
-                        'user_template_id' => $userTemplate->id,
-                        'image_path' => $path
-                    ]);
-                }
-            }
+        // 3. Last resort check
+        if (!$content) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'The server rejected the data. The file size might be too large for PHP settings.'
+            ], 400);
         }
 
+        // 4. Update the Database
         $userTemplate->content()->updateOrCreate(
-            ['user_template_id' => $id],
+            ['user_template_id' => $userTemplate->id],
             ['content_json' => json_encode($content)]
         );
 
-        return response()->json(['success'=>true]);
+        return response()->json(['success' => true]);
     }
 
     public function profile()
