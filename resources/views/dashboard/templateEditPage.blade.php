@@ -213,20 +213,56 @@ document.addEventListener("DOMContentLoaded", function(){
             doc.documentElement.style.setProperty('--primary', content.primary_color);
         }
 
+        // if(content.gallery && content.gallery.length){
+        //     const galleryEditor = document.querySelector('.gallery-editor');
+        //     content.gallery.forEach(img => {
+        //         const image = document.createElement("img");
+        //         image.src = img.startsWith("data:") ? img : "/storage/" + img;
+        //         image.className = "preview-img-sm";
+        //         galleryEditor.appendChild(image);
+        //     });
+        // }
+
         renderRepeaters();
         renderMap();
         renderGallery();
     }
 
     function renderGallery() {
-        const galleryBox = doc.getElementById("dynamicGallery");
-        if (galleryBox && content.gallery) {
-            galleryBox.innerHTML = content.gallery.map(img => `
-                <img src="${img.startsWith('data:') ? img : '/storage/' + img}" 
-                    style="width:100%; display:block; margin-bottom:10px;">
-            `).join('');
-        }
+    if (!doc) return;
+
+    const gallerySection = doc.getElementById("gallery");
+    const galleryBox = doc.getElementById("dynamicGallery");
+    if (!galleryBox) return;
+
+    // Detect gallery field dynamically
+    const galleryKey = Object.keys(content).find(key =>
+        Array.isArray(content[key])
+    );
+
+    if (!galleryKey) return;
+
+    // Toggle handling
+    if (content.show_gallery == 0 || content.show_gallery === false) {
+        if (gallerySection) gallerySection.style.display = "none";
+        return;
+    } else {
+        if (gallerySection) gallerySection.style.display = "";
     }
+
+    if (!content[galleryKey] || content[galleryKey].length === 0) return;
+
+    galleryBox.innerHTML = "";
+
+    content[galleryKey].forEach(img => {
+        const image = doc.createElement("img"); // IMPORTANT: use iframe doc
+        image.src = img.startsWith("data:")
+            ? img
+            : "/storage/" + img;
+
+        galleryBox.appendChild(image);
+    });
+}
 
     function renderRepeaters() {
         const storyBox = doc.getElementById("loveStoryContainer");
@@ -343,69 +379,75 @@ document.addEventListener("DOMContentLoaded", function(){
     window.removeRep = (name, idx, btn) => { content[name].splice(idx, 1); btn.parentElement.remove(); renderRepeaters(); };
 
     // SAVE AJAX
-    document.getElementById("saveBtn").onclick = async () => {
-        const btn = document.getElementById("saveBtn");
-        btn.innerText = "Saving...";
-        btn.disabled = true;
+    saveBtn.addEventListener("click", async function () {
 
-        // Debug: Check size in MB
-        const size = new Blob([JSON.stringify(content)]).size / 1024 / 1024;
-        console.log("Payload Size: " + size.toFixed(2) + " MB");
+        saveBtn.innerText = "Saving...";
+        saveBtn.disabled = true;
+
+        const formData = new FormData();
+
+        // Append gallery files
+        window.galleryFiles.forEach(file => {
+            formData.append("gallery_images[]", file);
+        });
+
+        // Remove base64 images from JSON before sending
+        let cleanContent = JSON.parse(JSON.stringify(content));
+
+        formData.append("content", JSON.stringify(cleanContent));
 
         try {
             const response = await fetch("{{ route('template.save', $userTemplate->id) }}", {
                 method: "POST",
-                headers: { 
-                    "Content-Type": "application/json",
-                    "Accept": "application/json",
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}" 
+                headers: {
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
                 },
-                body: JSON.stringify({ content: content }) 
+                body: formData
             });
 
             const result = await response.json();
+
             if (response.ok) {
-                alert("Site Published!");
+                alert("Saved Successfully!");
+                location.reload();
             } else {
-                alert("Error: " + result.message);
+                alert(result.error || "Error occurred");
             }
-        } catch (e) {
-            alert("Request failed. This is likely due to server 'post_max_size' limits.");
-        } finally {
-            btn.innerText = "Save & Publish Site";
-            btn.disabled = false;
+
+        } catch (error) {
+            alert("Upload failed.");
         }
-    };
+
+        saveBtn.innerText = "Save & Publish Site";
+        saveBtn.disabled = false;
+    });
+
+    window.galleryFiles = [];
 
     window.handleGalleryUpload = function(input, fieldName) {
         if (!content[fieldName]) content[fieldName] = [];
-        
+
+        const galleryEditor = document.querySelector(`.gallery-editor[data-field="${fieldName}"]`);
+
         Array.from(input.files).forEach(file => {
+            window.galleryFiles.push(file);
+
             const reader = new FileReader();
             reader.onload = e => {
                 content[fieldName].push(e.target.result);
+
+                const img = document.createElement("img");
+                img.src = e.target.result;
+                img.className = "preview-img-sm";
+                galleryEditor.appendChild(img);
+
                 renderAll();
             };
             reader.readAsDataURL(file);
         });
-        // Clear input so same files can be re-uploaded if deleted
-        input.value = ""; 
+
+        input.value = "";
     };
-    // Gallery Handler
-    document.querySelectorAll("input[type='file'][multiple]").forEach(input => {
-        input.addEventListener("change", function() {
-            const fieldName = 'gallery';
-            if(!content[fieldName]) content[fieldName] = [];
-            Array.from(this.files).forEach(file => {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    content[fieldName].push(e.target.result);
-                    renderAll();
-                };
-                reader.readAsDataURL(file);
-            });
-        });
-    });
 });
 </script>
 @endsection

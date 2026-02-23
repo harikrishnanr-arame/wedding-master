@@ -98,3 +98,7 @@ Route::post('/template-save/{id}', [DashboardController::class, 'saveTemplate'])
 Route::post('/template/upload-image', [DashboardController::class, 'uploadImage'])
     ->middleware('auth')
     ->name('template.upload');
+
+    Route::get('/phpinfo-test', function () {
+    phpinfo();
+});

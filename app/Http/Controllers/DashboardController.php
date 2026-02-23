@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\UserTemplate;
 use App\Models\UserTemplateContent;
-use App\Models\Gallery;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Class DashboardController
@@ -114,49 +114,34 @@ class DashboardController extends Controller
         );
     }
 
-    /**
-     * Save template content updates from the editor.
-     *
-     * Accepts JSON data via:
-     * - Standard form input
-     * - Raw JSON request body (fallback)
-     *
-     * Updates or creates the related UserTemplateContent record.
-     *
-     * @param Request $request
-     * @param int $id
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function saveTemplate(Request $request, $id)
-    {
-        $userTemplate = UserTemplate::where('user_id', auth()->id())
-            ->findOrFail($id);
 
-        // Attempt to retrieve content from input
-        $content = $request->input('content');
+public function saveTemplate(Request $request, $id)
+{
+    $content = json_decode($request->input('content'), true) ?? [];
 
-        // Fallback: try raw JSON body
-        if (!$content) {
-            $rawBody = json_decode($request->getContent(), true);
-            $content = $rawBody['content'] ?? null;
+    if ($request->hasFile('gallery_images')) {
+
+        $galleryPaths = [];
+
+        foreach ($request->file('gallery_images') as $file) {
+
+            $path = $file->store('templates/gallery', 'public');
+
+            $galleryPaths[] = $path;
         }
 
-        // Final validation check
-        if (!$content) {
-            return response()->json([
-                'success' => false,
-                'message' => 'The server rejected the data. The file size might be too large for PHP settings.'
-            ], 400);
-        }
-
-        // Save or update content
-        $userTemplate->content()->updateOrCreate(
-            ['user_template_id' => $userTemplate->id],
-            ['content_json' => json_encode($content)]
-        );
-
-        return response()->json(['success' => true]);
+        $content['gallery'] = $galleryPaths;
     }
+
+    UserTemplateContent::updateOrCreate(
+        ['user_template_id' => $id],
+        ['content_json' => json_encode($content)]
+    );
+
+    return response()->json([
+        'success' => true
+    ]);
+}
 
     /**
      * Show user profile page.
