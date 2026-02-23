@@ -235,27 +235,24 @@ document.addEventListener("DOMContentLoaded", function(){
     const galleryBox = doc.getElementById("dynamicGallery");
     if (!galleryBox) return;
 
-    // Detect gallery field dynamically
-    const galleryKey = Object.keys(content).find(key =>
-        Array.isArray(content[key])
-    );
-
-    if (!galleryKey) return;
-
-    // Toggle handling
+    // Handle toggle
     if (content.show_gallery == 0 || content.show_gallery === false) {
-        if (gallerySection) gallerySection.style.display = "none";
+        gallerySection.style.display = "none";
         return;
     } else {
-        if (gallerySection) gallerySection.style.display = "";
+        gallerySection.style.display = "";
     }
 
-    if (!content[galleryKey] || content[galleryKey].length === 0) return;
+    // If no uploaded gallery → KEEP default placeholder images
+    if (!Array.isArray(content.gallery) || content.gallery.length === 0) {
+        return;
+    }
 
+    // If gallery exists → replace placeholders
     galleryBox.innerHTML = "";
 
-    content[galleryKey].forEach(img => {
-        const image = doc.createElement("img"); // IMPORTANT: use iframe doc
+    content.gallery.forEach(img => {
+        const image = document.createElement("img");
         image.src = img.startsWith("data:")
             ? img
             : "/storage/" + img;
