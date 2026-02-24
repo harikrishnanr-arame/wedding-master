@@ -11,7 +11,6 @@ class PaymentSeeder extends Seeder
     public function run(): void
     {
         $users = User::all();
-
         if ($users->isEmpty()) {
             $this->command->info('No users found. Please seed users first.');
             return;
@@ -27,7 +26,7 @@ class PaymentSeeder extends Seeder
             for ($i = 0; $i < $numPayments; $i++) {
                 Payment::create([
                     'user_id' => $user->id,
-                    'user_template_id' => null, // or assign if templates exist
+                    'user_template_id' => null,
                     'amount' => rand(500, 10000),
                     'currency' => 'INR',
                     'payment_provider' => $providers[array_rand($providers)],

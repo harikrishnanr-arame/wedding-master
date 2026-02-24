@@ -7,7 +7,6 @@ use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DashboardController;
-use App\Models\Template;
 
 Route::get('/', [HomeController::class, 'home'])->name('home');
 

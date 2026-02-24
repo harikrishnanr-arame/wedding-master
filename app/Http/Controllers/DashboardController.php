@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 /**
@@ -15,10 +14,10 @@ namespace App\Http\Controllers;
  * by authentication middleware to ensure only logged-in
  * users can access dashboard features.
  */
-class DashboardController extends Controller {
-
-    public function profile()
-    {
+class DashboardController extends Controller
+{
+    public function profile() {
+        /** Display authenticated user's profile page */
         return view('dashboard.profile');
     }
 

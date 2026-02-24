@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Payment;
@@ -20,8 +19,8 @@ use Illuminate\Support\Facades\Auth;
  * - Manage payments (list, delete)
  * - Provide AJAX endpoints for dynamic data loading
  */
-class AdminController extends Controller {
-
+class AdminController extends Controller
+{
     /**
      * Display the admin dashboard page.
      */
@@ -59,7 +58,6 @@ class AdminController extends Controller {
     public function deleteUser($id)
     {
         $user = User::findOrFail($id);
-
         if ($user->isAdmin()) {
             return response()->json([
                 'error' => 'Cannot delete admin'
@@ -105,7 +103,6 @@ class AdminController extends Controller {
     public function content()
     {
         $templates = Template::latest()->get();
-
         return view('admin.manage-content', compact('templates'));
     }
 
@@ -114,8 +111,7 @@ class AdminController extends Controller {
      */
     public function settings()
     {
-        $admin = Auth::user();
-        return view('admin.settings', compact('admin'));
+        return view('admin.settings');
     }
 
     /**
@@ -160,32 +156,9 @@ class AdminController extends Controller {
      */
     public function deletePayment($id)
     {
-        try {
-            $payment = Payment::findOrFail($id);
-            $payment->delete();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Payment deleted successfully.'
-            ]);
-
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Payment not found.'
-            ], 404);
-
-        } catch (\Exception $e) {
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Something went wrong.',
-                'error' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine()
-            ], 500);
-        }
+        $payment = Payment::findOrFail($id);
+        $payment->delete();
+        return response()->json(['success' => true]);
     }
 
     /**
@@ -204,7 +177,6 @@ class AdminController extends Controller {
     public function storeTemplate(Request $request)
     {
         try {
-
             $request->validate([
                 'name' => 'required',
                 'category' => 'required',
@@ -229,8 +201,8 @@ class AdminController extends Controller {
             return redirect()->back()->with('success', 'Template added successfully!');
 
         } catch (\Exception $e) {
-
-            dd($e->getMessage());
+            \Log::error('Template upload failed: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Something went wrong while uploading template.');
         }
     }
 
@@ -247,10 +219,9 @@ class AdminController extends Controller {
      *
      * - Redirects back with success message
      */
-    public function deleteTemplate($id)
+    public function deleteTemplate($id) 
     {
         $template = Template::findOrFail($id);
-
         // Delete files from storage
         if ($template->cover_image && Storage::disk('public')->exists($template->cover_image)) {
             Storage::disk('public')->delete($template->cover_image);

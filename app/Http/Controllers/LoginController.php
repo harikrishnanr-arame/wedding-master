@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -11,23 +10,30 @@ use Illuminate\Support\Facades\Log;
  * This controller manages login-related operations, including displaying the login form
  * and processing login attempts.
  */
-class LoginController extends Controller {
+class LoginController extends Controller
+{
 
     /**
      * Display the login form.
      *
      * @return \Illuminate\View\View
      */
-    public function showLogin() {
-        try {
+    public function showLogin()
+    {
+        try 
+        {
             return view('auth.login');
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e)
+        {
             Log::channel('custom_log')->error('Error in LoginController@showLogin: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
                 'request' => request()->all()
             ]);
             return response()->view('errors.500', [], 500);
-        } finally {
+        }
+        finally
+        {
             Log::channel('custom_log')->info('LoginController@showLogin method executed');
         }
     }
@@ -42,58 +48,55 @@ class LoginController extends Controller {
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
-   public function login(Request $request)
+    public function login(Request $request)
     {
-        try {
+        try 
+        {
             $credentials = $request->validate([
                 'email' => 'required|email',
                 'password' => 'required',
             ]);
-
-            $response = null;
-
-            if (Auth::attempt($credentials)) {
+            if (Auth::attempt($credentials)) 
+            {
                 $request->session()->regenerate();
-
-                $redirectPath = auth()->user()->isAdmin()
-                    ? '/admin/dashboard'
-                    : '/';
-
-                $message = auth()->user()->isAdmin()
-                    ? 'Welcome Admin'
-                    : 'Logged in successfully';
-
-                $response = redirect($redirectPath)->with('success', $message);
-            } else {
-                $response = back()->withErrors([
-                    'email' => 'Invalid email or password',
-                ]);
+                if (auth()->user()->isAdmin()) 
+                {
+                    return redirect('/admin/dashboard')->with('success', 'Welcome Admin');
+                }
+                return redirect('/')->with('success', 'Logged in successfully');
             }
-
-            return $response;
-
-        } catch (\Exception $e) {
-
+            return back()->withErrors([
+                'email' => 'Invalid email or password',
+            ]);
+        }
+        catch (\Exception $e)
+        {
             Log::channel('custom_log')->error('Error in LoginController@login: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
                 'request' => $request->all()
             ]);
-
-            return back()->withErrors([
-                'email' => 'An error occurred. Please try again.'
-            ]);
-
-        } finally {
+            return back()->withErrors(['email' => 'An error occurred. Please try again.']);
+        }
+        finally
+        {
             Log::channel('custom_log')->info('LoginController@login method executed');
         }
     }
 
+    /**
+     * Log out the currently authenticated user.
+     *
+     * This method:
+     * - Logs the user out using Laravel Auth.
+     * - Invalidates the current session to prevent reuse.
+     * - Regenerates the CSRF token for security.
+     * - Redirects the user to the home page.
+     */
     public function logout() {
         
         Auth::logout();
         request()->session()->invalidate();
         request()->session()->regenerateToken();
-
         return redirect('/');
     }
 

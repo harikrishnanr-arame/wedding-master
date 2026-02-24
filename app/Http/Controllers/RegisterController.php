@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
@@ -12,22 +11,29 @@ use Illuminate\Support\Facades\Log;
  * This controller manages registration-related operations, including displaying the registration form
  * and processing new user registrations.
  */
-class RegisterController extends Controller {
+class RegisterController extends Controller
+{
     /**
      * Display the registration form.
      *
      * @return \Illuminate\View\View
      */
-    public function showForm() {
-        try {
+    public function showForm()
+    {
+        try 
+        {
             return view('auth.register');
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e)
+        {
             Log::channel('custom_log')->error('Error in RegisterController@showForm: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
                 'request' => request()->all()
             ]);
             return response()->view('errors.500', [], 500);
-        } finally {
+        }
+        finally
+        {
             Log::channel('custom_log')->info('RegisterController@showForm method executed');
         }
     }
@@ -40,8 +46,8 @@ class RegisterController extends Controller {
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request) {
-        
+    public function store(Request $request)
+    {
         // Validate input
         $validated = $request->validate([
             'name' => 'required|string|max:100',
@@ -62,8 +68,7 @@ class RegisterController extends Controller {
             'role' => 'user',
         ]);
 
-        return redirect()->route('login')
-            ->with('success', 'Registration successful!');
+        return redirect()->route('login')->with('success', 'Registration successful!');
     }
 
 }

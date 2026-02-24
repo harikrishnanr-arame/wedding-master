@@ -142,19 +142,20 @@ $(document).ready(function() {
         });
     }
 
-    // DELETE USER (SweetAlert Confirm)
-    $(document).on("click", ".delete", function() {
+    // DELETE
+    $(document).on("click", ".delete", function () {
 
         let id = $(this).data("id");
 
         Swal.fire({
-            title: 'Are you sure?',
+            title: "Are you sure?",
             text: "This user will be permanently deleted!",
-            icon: 'warning',
+            icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, delete it!'
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#6c757d",
+            confirmButtonText: "Yes, delete it!",
+            cancelButtonText: "Cancel"
         }).then((result) => {
 
             if (result.isConfirmed) {
@@ -165,34 +166,36 @@ $(document).ready(function() {
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
-                    success: function(response) {
+                    success: function (response) {
 
-                        if(response.error){
+                        if (response.error) {
                             Swal.fire({
-                                icon: 'error',
-                                title: 'Delete Failed',
+                                icon: "error",
+                                title: "Error",
                                 text: response.error
                             });
                         } else {
                             Swal.fire({
-                                icon: 'success',
-                                title: 'Deleted!',
-                                text: 'User deleted successfully.',
+                                icon: "success",
+                                title: "Deleted!",
+                                text: "User has been deleted successfully.",
                                 timer: 1500,
                                 showConfirmButton: false
                             });
 
                             loadUsers();
                         }
+
                     },
-                    error: function() {
+                    error: function () {
                         Swal.fire({
-                            icon: 'error',
-                            title: 'Delete Failed',
-                            text: 'Something went wrong.'
+                            icon: "error",
+                            title: "Oops...",
+                            text: "Something went wrong. Please try again."
                         });
                     }
                 });
+
             }
 
         });
