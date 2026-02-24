@@ -9,7 +9,6 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DashboardController;
 use App\Models\Template;
 
-
 Route::get('/', [HomeController::class, 'home'])->name('home');
 
 /* Authentication*/
@@ -39,10 +38,7 @@ Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback']);
 
 /* User Dashboard*/
 
-Route::prefix('dashboard')
-    ->middleware('auth')
-    ->name('dashboard.')
-    ->group(function () {
+Route::prefix('dashboard')->middleware('auth')->name('dashboard.')->group(function () {
 
         Route::get('/', [DashboardController::class, 'profile'])->name('profile');
         Route::get('/templates', [DashboardController::class, 'templates'])->name('templates');
@@ -52,10 +48,7 @@ Route::prefix('dashboard')
 
 /* Admin Panel*/
 
-Route::prefix('admin')
-    ->middleware(['auth', 'admin'])
-    ->name('admin.')
-    ->group(function () {
+Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(function () {
 
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
         Route::get('/users', [AdminController::class, 'users'])->name('users');

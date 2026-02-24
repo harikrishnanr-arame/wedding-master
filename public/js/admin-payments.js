@@ -2,7 +2,9 @@ $(document).ready(function() {
 
     $.ajaxSetup({
         headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            'X-CSRF-TOKEN': document
+                .querySelector('meta[name="csrf-token"]')
+                .getAttribute('content')
         }
     });
 
@@ -14,6 +16,12 @@ $(document).ready(function() {
             allPayments = data;
             renderPayments(allPayments);
             updateTotals(allPayments);
+        }).fail(function() {
+            Swal.fire({
+                icon: 'error',
+                title: 'Failed to load payments',
+                text: 'Something went wrong while fetching data.'
+            });
         });
     }
 
@@ -64,9 +72,9 @@ $(document).ready(function() {
         payments.forEach(p => {
             const status = p.status.toLowerCase();
 
-            if (status === 'paid') totalRevenue += Number.parseFloat(p.amount);
-            if (status === 'pending') totalPending += Number.parseFloat(p.amount);
-            if (status === 'failed') totalFailed += Number.parseFloat(p.amount);
+            if (status === 'paid') totalRevenue += parseFloat(p.amount);
+            if (status === 'pending') totalPending += parseFloat(p.amount);
+            if (status === 'failed') totalFailed += parseFloat(p.amount);
         });
 
         $("#totalRevenue").text('₹ ' + totalRevenue.toFixed(2));
@@ -74,25 +82,52 @@ $(document).ready(function() {
         $("#totalFailed").text('₹ ' + totalFailed.toFixed(2));
     }
 
-    // Delete payment
+    // Delete payment with SweetAlert
     $(document).on("click", ".delete", function() {
 
         let id = $(this).data("id");
 
-        if(!confirm("Are you sure you want to delete this payment?")) return;
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This payment will be permanently deleted!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
 
-        $.ajax({
-            url: `/admin/payments/delete/${id}`,
-            type: "DELETE",
-            success: function() {
-                allPayments = allPayments.filter(p => p.id !== id);
-                renderPayments(allPayments);
-                updateTotals(allPayments);
-            },
-            error: function(xhr) {
-                console.log(xhr.responseText);
-                alert("Delete failed!");
+            if (result.isConfirmed) {
+
+                $.ajax({
+                    url: `/admin/payments/delete/${id}`,
+                    type: "DELETE",
+                    success: function(response) {
+
+                        allPayments = allPayments.filter(p => p.id !== id);
+                        renderPayments(allPayments);
+                        updateTotals(allPayments);
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: response.message ?? 'Payment deleted successfully.',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    },
+                    error: function(xhr) {
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Delete Failed',
+                            text: xhr.responseJSON?.message ?? 'Something went wrong!'
+                        });
+                    }
+                });
+
             }
+
         });
     });
 

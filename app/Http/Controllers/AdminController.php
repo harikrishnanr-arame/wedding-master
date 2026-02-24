@@ -25,14 +25,16 @@ class AdminController extends Controller {
     /**
      * Display the admin dashboard page.
      */
-    public function dashboard() {
+    public function dashboard()
+    {
         return view('admin.dashboard');
     }
 
     /**
      * Display the users management page.
      */
-    public function users() {
+    public function users()
+    {
         return view('admin.users');
     }
 
@@ -42,7 +44,8 @@ class AdminController extends Controller {
      * Returns a JSON response containing
      * all users ordered by latest.
      */
-    public function getUsers() {
+    public function getUsers()
+    {
         $users = User::latest()->get();
         return response()->json($users);
     }
@@ -53,7 +56,8 @@ class AdminController extends Controller {
      * Prevents deletion of admin users.
      * Returns JSON success or error response.
      */
-    public function deleteUser($id) {
+    public function deleteUser($id)
+    {
         $user = User::findOrFail($id);
 
         if ($user->isAdmin()) {
@@ -74,7 +78,8 @@ class AdminController extends Controller {
      * Hashes password
      * Assigns role (admin/user)
      */
-    public function storeUser(Request $request) {
+    public function storeUser(Request $request)
+    {
         $request->validate([
             'user_name' => 'required|string|max:255',
             'email'     => 'required|email|unique:users,email',
@@ -97,7 +102,8 @@ class AdminController extends Controller {
     /**
      * Display the content management page.
      */
-    public function content() {
+    public function content()
+    {
         $templates = Template::latest()->get();
 
         return view('admin.manage-content', compact('templates'));
@@ -106,7 +112,8 @@ class AdminController extends Controller {
     /**
      * Display the admin settings page.
      */
-    public function settings() {
+    public function settings()
+    {
         $admin = Auth::user();
         return view('admin.settings', compact('admin'));
     }
@@ -120,7 +127,8 @@ class AdminController extends Controller {
      * - Total pending payments
      * - Total failed payments
      */
-    public function payments() {
+    public function payments()
+    {
         $payments = Payment::with('user')->latest()->get();
         $totalRevenue = Payment::where('status', 'paid')->sum('amount');
         $totalPending = Payment::where('status', 'pending')->sum('amount');
@@ -139,7 +147,8 @@ class AdminController extends Controller {
      *
      * Returns payments with related user data.
      */
-    public function getPayments() {
+    public function getPayments()
+    {
         $payments = Payment::with('user')->latest()->get();
         return response()->json($payments);
     }
@@ -149,11 +158,34 @@ class AdminController extends Controller {
      *
      * Returns JSON success response.
      */
-    public function deletePayment($id) {
-        $payment = Payment::findOrFail($id);
-        $payment->delete();
+    public function deletePayment($id)
+    {
+        try {
+            $payment = Payment::findOrFail($id);
+            $payment->delete();
 
-        return response()->json(['success' => true]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Payment deleted successfully.'
+            ]);
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Payment not found.'
+            ], 404);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong.',
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ], 500);
+        }
     }
 
     /**
@@ -169,7 +201,8 @@ class AdminController extends Controller {
      * - Redirects back with success message on completion
      * - Dumps error message if an exception occurs
      */
-    public function storeTemplate(Request $request) {
+    public function storeTemplate(Request $request)
+    {
         try {
 
             $request->validate([
@@ -214,7 +247,8 @@ class AdminController extends Controller {
      *
      * - Redirects back with success message
      */
-    public function deleteTemplate($id) {
+    public function deleteTemplate($id)
+    {
         $template = Template::findOrFail($id);
 
         // Delete files from storage
@@ -247,7 +281,8 @@ class AdminController extends Controller {
      * @param int $id Template ID
      * @return RedirectResponse
      */
-    public function toggleTemplate($id) {
+    public function toggleTemplate($id)
+    {
         $template = Template::findOrFail($id);
         $template->is_active = !$template->is_active;
         $template->save();
@@ -266,7 +301,8 @@ class AdminController extends Controller {
      * - Update password_changed_at timestamp (optional security tracking)
      * - Save updated user record
      */
-    public function changePassword(Request $request) {
+    public function changePassword(Request $request)
+    {
         $request->validate([
             'current_password' => 'required',
             'new_password' => 'required|min:6|confirmed',

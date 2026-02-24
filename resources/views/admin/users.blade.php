@@ -93,6 +93,7 @@
 <script>
 $(document).ready(function() {
 
+    // Load Users
     function loadUsers() {
         $.ajax({
             url: "{{ route('admin.users.list') }}",
@@ -120,7 +121,9 @@ $(document).ready(function() {
                                 <td>${user.role ?? 'user'}</td>
                                 <td>${joinedDate}</td>
                                 <td>
-                                    <button class="delete" data-id="${user.id}"><i class="fa-solid fa-trash"></i></button>
+                                    <button class="delete" data-id="${user.id}">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
                                 </td>
                             </tr>
                         `;
@@ -128,30 +131,70 @@ $(document).ready(function() {
                 }
 
                 $("#usersTableBody").html(rows);
+            },
+            error: function() {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Failed to load users',
+                    text: 'Something went wrong.'
+                });
             }
         });
     }
 
-    // DELETE
+    // DELETE USER (SweetAlert Confirm)
     $(document).on("click", ".delete", function() {
-
-        if (!confirm("Are you sure you want to delete this user?")) return;
 
         let id = $(this).data("id");
 
-        $.ajax({
-            url: "{{ url('admin/users/delete') }}/" + id,
-            type: "DELETE",
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(response) {
-                if(response.error){
-                    alert(response.error);
-                } else {
-                    loadUsers();
-                }
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This user will be permanently deleted!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+
+            if (result.isConfirmed) {
+
+                $.ajax({
+                    url: "{{ url('admin/users/delete') }}/" + id,
+                    type: "DELETE",
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+
+                        if(response.error){
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Delete Failed',
+                                text: response.error
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Deleted!',
+                                text: 'User deleted successfully.',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+
+                            loadUsers();
+                        }
+                    },
+                    error: function() {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Delete Failed',
+                            text: 'Something went wrong.'
+                        });
+                    }
+                });
             }
+
         });
 
     });
@@ -195,11 +238,11 @@ $(document).ready(function() {
     });
 
     // CLOSE MODAL
-    $("#closeModal").click(function(){
+    $("#closeModal, #closeModalBtn").click(function(){
         $("#addUserModal").hide();
     });
 
-    // SAVE USER
+    // SAVE USER (SweetAlert Success & Error)
     $("#saveUser").click(function(){
 
         $.ajax({
@@ -215,7 +258,7 @@ $(document).ready(function() {
                 role: $("#newRole").val()
             },
             success: function(response){
-                
+
                 $("#addUserModal").hide();
 
                 // Clear form
@@ -224,10 +267,24 @@ $(document).ready(function() {
                 $("#newPassword").val('');
                 $("#newRole").val('0');
 
+                Swal.fire({
+                    icon: 'success',
+                    title: 'User Created!',
+                    text: 'New user has been added successfully.',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+
                 loadUsers();
             },
             error: function(xhr){
-                alert("Error: " + xhr.responseJSON.message);
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Creation Failed',
+                    text: xhr.responseJSON?.message ?? 'Something went wrong!'
+                });
+
             }
         });
 

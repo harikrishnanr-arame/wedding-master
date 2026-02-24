@@ -70,7 +70,6 @@
             </div>
             @endif
 
-
             <div class="form-group">
                 <label for="name">Template Name</label>
                 <input type="text" id="name" name="name" required>
@@ -111,7 +110,6 @@
 </div>
 
 @endsection
-
 
 @section('scripts')
 
