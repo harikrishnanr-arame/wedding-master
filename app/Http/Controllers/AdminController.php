@@ -21,6 +21,19 @@ use Illuminate\Support\Facades\Auth;
  */
 class AdminController extends Controller
 {
+    protected $admin;
+
+    public function __construct()
+    {
+        $this->middleware(['auth', 'admin']);
+
+        $this->middleware(function ($request, $next) {
+            $this->admin = Auth::user();
+            view()->share('admin', $this->admin);
+            return $next($request);
+        });
+    }
+
     /**
      * Display the admin dashboard page.
      */
@@ -126,9 +139,12 @@ class AdminController extends Controller
     public function payments()
     {
         $payments = Payment::with('user')->latest()->get();
-        $totalRevenue = Payment::where('status', 'paid')->sum('amount');
-        $totalPending = Payment::where('status', 'pending')->sum('amount');
-        $totalFailed  = Payment::where('status', 'failed')->sum('amount');
+        // $totalRevenue = Payment::where('status', 'paid')->sum('amount');
+        // $totalPending = Payment::where('status', 'pending')->sum('amount');
+        // $totalFailed  = Payment::where('status', 'failed')->sum('amount');
+        $totalRevenue = Payment::where('status', Payment::STATUS_PAID)->sum('amount');
+        $totalPending = Payment::where('status', Payment::STATUS_PENDING)->sum('amount');
+        $totalFailed  = Payment::where('status', Payment::STATUS_FAILED)->sum('amount');
 
         return view('admin.payments', compact(
             'payments',
@@ -279,7 +295,8 @@ class AdminController extends Controller
             'new_password' => 'required|min:6|confirmed',
         ]);
 
-        $user = Auth::user();
+        // $user = Auth::user();
+        $user = $this->admin;
 
         // Check current password
         if (!Hash::check($request->current_password, $user->password)) {
