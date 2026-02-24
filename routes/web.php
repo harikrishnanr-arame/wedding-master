@@ -9,7 +9,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DashboardController;
 use App\Models\Template;
 use App\Models\PublishedTemplate;
-
+use App\Http\Controllers\PublishedTemplateController;
 
 Route::get('/', [HomeController::class, 'home'])->name('home');
 
@@ -104,29 +104,6 @@ Route::post('/template/upload-image', [DashboardController::class, 'uploadImage'
     phpinfo();
 });
 
-// Route::get('/published/{route}', function($route) {
-//     $published = \App\Models\PublishedTemplate::where('route', $route)->firstOrFail();
-//     $content = json_decode($published->content_json, true);
-
-//     $template = $published->template;
-//     if (!$template || !$template->html_file) {
-//         abort(404, 'Original template file not found.');
-//     }
-
-//     $templateFile = 'templates.' . pathinfo($template->html_file, PATHINFO_FILENAME);
-
-//     return view($templateFile, compact('content'));
-// })
-// ->where('route', '.*')
-// ->name('published.show');
-
-// Route::get('/published/{route}', function($route) {
-//     $published = PublishedTemplate::where('route', $route)->firstOrFail();
-//     $content = json_decode($published->content_json, true);
-
-//     return view('templates.wedding', compact('content'));
-// })->where('route', '.*')->name('published.show');
-
 Route::get('/published/{route}', function($route) {
     $published = PublishedTemplate::where('route', $route)->firstOrFail();
     $content = json_decode($published->content_json, true);
@@ -140,13 +117,4 @@ Route::get('/published/{route}', function($route) {
     return view($templateFile, compact('content'));
 })->where('route', '.*')->name('published.show');
 
-use App\Http\Controllers\PublishedTemplateController;
-
-// Route::get('/published/{route}', [PublishedTemplateController::class, 'show'])
-//     ->name('published.show');
-
-Route::get('/published/{route}', [PublishedTemplateController::class, 'show'])
-    ->where('route', '.*') // allow anything, including slashes
-    ->name('published.show');
-
-Route::get('/published/{route}', [DashboardController::class, 'viewPublishedSite'])->name('site.published');    
+Route::get('/published/{route}', [DashboardController::class, 'viewPublishedSite'])->name('site.published');

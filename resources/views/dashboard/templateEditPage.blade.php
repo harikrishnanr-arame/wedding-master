@@ -432,7 +432,7 @@ document.addEventListener("DOMContentLoaded", function(){
             return;
         }
         
-        container.innerHTML = ''; // Clear current view
+        container.innerHTML = '';
 
         const images = window.content[fieldName] || [];
 
@@ -457,12 +457,7 @@ document.addEventListener("DOMContentLoaded", function(){
     };
 
     window.removeGalleryImage = function(fieldName, index) {
-        // Remove from the content array
         window.content[fieldName].splice(index, 1);
-        
-        // Also remove from the galleryFiles array if it was a new upload
-        // (Optional logic, usually simpler to just let the backend handle the final diff)
-        
         refreshGallerySidebar(fieldName);
         renderAll();
     };
@@ -470,7 +465,7 @@ document.addEventListener("DOMContentLoaded", function(){
     // Repeater Logic
     function loadRepeatersToSidebar() {
         const containers = document.querySelectorAll('.repeater-container');
-        containers.forEach(c => c.innerHTML = ''); // Clear old
+        containers.forEach(c => c.innerHTML = '');
         if(window.content.love_story) window.content.love_story.forEach((item, i) => addRepeater("love_story", item, i));
         if(window.content.events) window.content.events.forEach((item, i) => addRepeater("events", item, i));
     }
@@ -515,7 +510,7 @@ document.addEventListener("DOMContentLoaded", function(){
     };
     window.removeRep = (name, idx, btn) => { window.content[name].splice(idx, 1); btn.parentElement.remove(); renderRepeaters(); };
 
-    // Final Save/Publish Logic
+    //Save/Publish Logic
     const saveBtn = document.getElementById('saveBtn');
     const publishBtn = document.getElementById('publishBtn');
 
