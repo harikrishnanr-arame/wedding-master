@@ -33,46 +33,37 @@ class DashboardController extends Controller
      * @param int $templateId
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function createTemplate($templateId)
+    public function createTemplate($id)
     {
-        $existing = UserTemplate::where('user_id', auth()->id())
-            ->where('template_id', $templateId)
-            ->first();
+        // 1. Fetch the master template first!
+        $template = \App\Models\Template::findOrFail($id);
 
+        // 2. Check if the user already has a version of this (Optional but recommended)
+        $existing = UserTemplate::where('user_id', auth()->id())
+                                ->where('template_id', $id)
+                                ->first();
+        
         if ($existing) {
             return redirect()->route('template.edit', $existing->id);
         }
 
+        // 3. Now $template->html_file will work perfectly
         $userTemplate = UserTemplate::create([
             'user_id' => auth()->id(),
-            'template_id' => $templateId,
-            'title' => 'My Wedding Website'
+            'template_id' => $id,
+            'title' => 'My Wedding Website',
+            'html_file' => $template->html_file // This was the broken line
         ]);
 
-        // Default template content structure
+        // 4. Define your default content...
         $defaultContent = [
-            'show_countdown' => 1,
-            'show_story' => 1,
-            'show_events' => 1,
-            'show_gallery' => 1,
             'couple_name' => 'Romeo & Juliet',
-            'love_story' => [
-                [
-                    'title' => 'The First Meeting',
-                    'description' => 'It all started here...',
-                    'image' => ''
-                ]
-            ],
-            'events' => [
-                [
-                    'title' => 'Ceremony',
-                    'date' => 'Sept 24, 2026',
-                    'location' => 'St. Peters'
-                ]
-            ]
+            'primary_color' => '#d63384',
+            // ... rest of your array
         ];
 
-        UserTemplateContent::create([
+        // 5. Save the initial content
+        \App\Models\UserTemplateContent::create([
             'user_template_id' => $userTemplate->id,
             'content_json' => json_encode($defaultContent)
         ]);
@@ -114,33 +105,110 @@ class DashboardController extends Controller
         );
     }
 
+// public function saveTemplate(Request $request, $id)
+// {
+//     $content = json_decode($request->input('content'), true) ?? [];
 
-public function saveTemplate(Request $request, $id)
+//     if ($request->hasFile('gallery_images')) {
+
+//         $galleryPaths = [];
+
+//         foreach ($request->file('gallery_images') as $file) {
+
+//             $path = $file->store('templates/gallery', 'public');
+
+//             $galleryPaths[] = $path;
+//         }
+
+//         $content['gallery'] = $galleryPaths;
+//     }
+
+//     UserTemplateContent::updateOrCreate(
+//         ['user_template_id' => $id],
+//         ['content_json' => json_encode($content)]
+//     );
+
+//     return response()->json([
+//         'success' => true
+//     ]);
+// }
+
+   public function saveTemplate(Request $request, $id)
 {
-    $content = json_decode($request->input('content'), true) ?? [];
+    try {
+        $userTemplate = UserTemplate::where('id', $id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
 
-    if ($request->hasFile('gallery_images')) {
+        $contentModel = UserTemplateContent::firstOrNew(['user_template_id' => $userTemplate->id]);
+        
+        // Ensure current content is an array
+        $currentContent = json_decode($contentModel->content_json, true);
+        if (!is_array($currentContent)) $currentContent = [];
 
-        $galleryPaths = [];
+        // Decode incoming content safely
+        $incomingContent = $request->input('content');
+        if (is_string($incomingContent)) {
+            $incomingContent = json_decode($incomingContent, true);
+        }
+        if (!is_array($incomingContent)) $incomingContent = [];
 
-        foreach ($request->file('gallery_images') as $file) {
-
-            $path = $file->store('templates/gallery', 'public');
-
-            $galleryPaths[] = $path;
+        // 1. Handle Gallery Uploads
+        $newGalleryPaths = [];
+        if ($request->hasFile('gallery_images')) {
+            foreach ($request->file('gallery_images') as $file) {
+                // Store file and get the path
+                $newGalleryPaths[] = $file->store('templates/gallery', 'public');
+            }
         }
 
-        $content['gallery'] = $galleryPaths;
+        // 2. Merge General Fields
+        // We use array_replace to ensure incoming values overwrite old ones
+        $finalContent = array_replace_recursive($currentContent, $incomingContent);
+
+        // 3. Handle Gallery Specifically (Merge old paths with new uploads)
+        $existingGalleryPaths = $incomingContent['gallery'] ?? [];
+        // Ensure we only keep strings (paths), filtering out any accidental Base64
+        $existingGalleryPaths = array_filter($existingGalleryPaths, function($path) {
+            return is_string($path) && strpos($path, 'data:') === false;
+        });
+
+        $finalContent['gallery'] = array_merge($existingGalleryPaths, $newGalleryPaths);
+
+        // 4. Save to Database
+        $contentModel->content_json = json_encode($finalContent);
+        $contentModel->save();
+
+        // 5. Handle Publish Logic
+        $publishUrl = null;
+        if ($request->input('publish') == "1" || $request->input('publish') === true) {
+            $route = 'wedding-' . $userTemplate->id . '-' . time();
+            
+            \App\Models\PublishedTemplate::updateOrCreate(
+                ['user_id' => auth()->id(), 'template_id' => $userTemplate->template_id],
+                [
+                    'route' => $route,
+                    'content_json' => json_encode($finalContent)
+                ]
+            );
+            $publishUrl = url('/published/' . $route);
+        }
+
+        return response()->json([
+            'success' => true,
+            'publish_url' => $publishUrl,
+            'content' => $finalContent 
+        ]);
+
+    } catch (\Exception $e) {
+        // This captures the exact error message and sends it to your Browser Console
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine()
+        ], 500);
     }
-
-    UserTemplateContent::updateOrCreate(
-        ['user_template_id' => $id],
-        ['content_json' => json_encode($content)]
-    );
-
-    return response()->json([
-        'success' => true
-    ]);
 }
 
     /**
@@ -177,4 +245,17 @@ public function saveTemplate(Request $request, $id)
 
         return view('dashboard.templates', compact('userTemplates'));
     }
+
+    public function viewPublishedSite($route)
+{
+    $published = \App\Models\PublishedTemplate::where('route', $route)->firstOrFail();
+    $masterTemplate = \App\Models\Template::findOrFail($published->template_id);
+
+    return view('public.template_viewer', [
+        'content' => json_decode($published->content_json, true),
+        'templatePath' => $masterTemplate->html_file
+    ]);
+}
+
+
 }

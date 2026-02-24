@@ -8,6 +8,8 @@
   <!-- COMMON CSS -->
   <link rel="stylesheet" href="{{ asset('assets/css/userDashboar.css') }}">
 
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
   <!-- PAGE CSS -->
   @stack('styles')
 </head>

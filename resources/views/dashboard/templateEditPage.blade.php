@@ -70,6 +70,42 @@
         cursor: pointer; position: relative; transition: 0.3s; background: #fafafa;
     }
     .drop-zone:hover { border-color: var(--accent); background: #fff0f6; }
+    
+    /* Gallery Sidebar Previews */
+    .gallery-preview-container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-top: 15px;
+    }
+    .gallery-item-wrapper {
+        position: relative;
+        aspect-ratio: 1/1;
+    }
+    .gallery-item-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 6px;
+    }
+    .delete-img-btn {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: #ff4d4d;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        font-size: 12px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
     .preview-img-sm { width: 100%; height: 120px; object-fit: cover; border-radius: 6px; margin-top: 10px; }
 
     .save-btn { 
@@ -111,11 +147,12 @@
                                 <input type="file" hidden accept="image/*" multiple 
                                     onchange="handleGalleryUpload(this, '{{ $field['name'] }}')">
                             </div>
+                            <div class="gallery-preview-container" id="sidebar-gallery-list">
+                                </div>
                         </div> 
                     
                     @elseif($field['type'] == 'toggle')
                         <div style="display:flex; align-items:center; gap:10px;">
-                            {{-- IMPORTANT: Default to 'checked' if value is not set --}}
                             <input type="checkbox" 
                                    style="width:20px; height:20px;" 
                                    data-field="{{ $field['name'] }}" 
@@ -144,7 +181,10 @@
             @endforeach
         </div>
 
-        <button id="saveBtn" class="save-btn">Save & Publish Site</button>
+        <div style="display:flex; gap:10px; margin: 25px;">
+            <button id="saveBtn" class="save-btn" style="flex:1; background:#6c757d;">Save</button>
+            <button id="publishBtn" class="save-btn" style="flex:1; background:#28a745;">Publish</button>
+        </div>
     </div>
 
     <div class="preview-area">
@@ -158,113 +198,96 @@
 document.addEventListener("DOMContentLoaded", function(){
     const iframe = document.getElementById("templateFrame");
     let doc;
-    let content = {!! json_encode($content ?? []) !!};
+    
+    // Global State
+    window.content = {!! json_encode($content ?? []) !!};
+    window.galleryFiles = []; 
+    let lastTimerDate = null;
 
     iframe.onload = function(){
         doc = iframe.contentDocument || iframe.contentWindow.document;
         if(!doc) return;
         renderAll();
         loadRepeatersToSidebar();
+        refreshGallerySidebar('gallery'); // Initial gallery sidebar load
     };
-
-    let lastTimerDate = null;
 
     function renderAll() {
         if (!doc) return;
 
-        // 1. Simple Text Sync
+        // 1. Text Sync
         doc.querySelectorAll("[data-edit]").forEach(el => {
             const key = el.dataset.edit;
-            if (content[key] !== undefined) el.textContent = content[key];
+            if (window.content[key] !== undefined) el.textContent = window.content[key];
         });
 
-        // 2. Visibility Toggles - DEFAULT TO VISIBLE IF UNDEFINED
+        // 2. Toggles
         doc.querySelectorAll("[data-edit-toggle]").forEach(el => {
             const key = el.dataset.editToggle;
-            const isVisible = (content[key] === undefined || content[key] == 1 || content[key] === true);
+            const isVisible = (window.content[key] === undefined || window.content[key] == 1 || window.content[key] === true);
             el.style.display = isVisible ? "" : "none";
         });
 
         // 3. Images
         doc.querySelectorAll("[data-edit-image]").forEach(el => {
             const key = el.dataset.editImage;
-            if (content[key]) el.src = content[key].startsWith("data:") ? content[key] : "/storage/" + content[key];
+            if (window.content[key]) el.src = window.content[key].startsWith("data:") ? window.content[key] : "/storage/" + window.content[key];
         });
 
-        // 4. Hero Background
+        // 4. Hero BG
         doc.querySelectorAll("[data-edit-bg]").forEach(el => {
             const key = el.dataset.editBg;
-            if (content[key]) {
-                const url = content[key].startsWith("data:") ? content[key] : "/storage/" + content[key];
+            if (window.content[key]) {
+                const url = window.content[key].startsWith("data:") ? window.content[key] : "/storage/" + window.content[key];
                 el.style.backgroundImage = `url('${url}')`;
             }
         });
 
         // 5. Timer
-        if (content.countdown_target && content.countdown_target !== lastTimerDate) {
-            lastTimerDate = content.countdown_target;
+        if (window.content.countdown_target && window.content.countdown_target !== lastTimerDate) {
+            lastTimerDate = window.content.countdown_target;
             if (iframe.contentWindow.startTimer) {
-                iframe.contentWindow.startTimer(content.countdown_target);
+                iframe.contentWindow.startTimer(window.content.countdown_target);
             }
         }
 
-        // 6. Primary Color
-        if (content.primary_color) {
-            doc.documentElement.style.setProperty('--primary', content.primary_color);
+        // 6. Color
+        if (window.content.primary_color) {
+            doc.documentElement.style.setProperty('--primary', window.content.primary_color);
         }
-
-        // if(content.gallery && content.gallery.length){
-        //     const galleryEditor = document.querySelector('.gallery-editor');
-        //     content.gallery.forEach(img => {
-        //         const image = document.createElement("img");
-        //         image.src = img.startsWith("data:") ? img : "/storage/" + img;
-        //         image.className = "preview-img-sm";
-        //         galleryEditor.appendChild(image);
-        //     });
-        // }
 
         renderRepeaters();
         renderMap();
-        renderGallery();
+        renderGalleryInIframe();
     }
 
-    function renderGallery() {
-    if (!doc) return;
+    function renderGalleryInIframe() {
+        if (!doc) return;
+        const gallerySection = doc.getElementById("gallery");
+        const galleryBox = doc.getElementById("dynamicGallery");
+        if (!galleryBox) return;
 
-    const gallerySection = doc.getElementById("gallery");
-    const galleryBox = doc.getElementById("dynamicGallery");
-    if (!galleryBox) return;
+        if (window.content.show_gallery == 0 || window.content.show_gallery === false) {
+            if(gallerySection) gallerySection.style.display = "none";
+            return;
+        } else {
+            if(gallerySection) gallerySection.style.display = "";
+        }
 
-    // Handle toggle
-    if (content.show_gallery == 0 || content.show_gallery === false) {
-        gallerySection.style.display = "none";
-        return;
-    } else {
-        gallerySection.style.display = "";
+        if (!Array.isArray(window.content.gallery) || window.content.gallery.length === 0) return;
+
+        galleryBox.innerHTML = "";
+        window.content.gallery.forEach(img => {
+            const image = document.createElement("img");
+            image.src = img.startsWith("data:") ? img : "/storage/" + img;
+            galleryBox.appendChild(image);
+        });
     }
-
-    // If no uploaded gallery → KEEP default placeholder images
-    if (!Array.isArray(content.gallery) || content.gallery.length === 0) {
-        return;
-    }
-
-    // If gallery exists → replace placeholders
-    galleryBox.innerHTML = "";
-
-    content.gallery.forEach(img => {
-        const image = document.createElement("img");
-        image.src = img.startsWith("data:")
-            ? img
-            : "/storage/" + img;
-
-        galleryBox.appendChild(image);
-    });
-}
 
     function renderRepeaters() {
         const storyBox = doc.getElementById("loveStoryContainer");
-        if(storyBox && content.love_story) {
-            storyBox.innerHTML = content.love_story.map(item => `
+        if(storyBox && window.content.love_story) {
+            storyBox.innerHTML = window.content.love_story.map(item => `
                 <div class="story-item">
                     <img class="story-img" src="${item.image ? (item.image.startsWith('data:') ? item.image : '/storage/'+item.image) : ''}">
                     <div class="story-text">
@@ -276,8 +299,8 @@ document.addEventListener("DOMContentLoaded", function(){
         }
 
         const eventBox = doc.getElementById("eventsContainer");
-        if(eventBox && content.events) {
-            eventBox.innerHTML = content.events.map(item => `
+        if(eventBox && window.content.events) {
+            eventBox.innerHTML = window.content.events.map(item => `
                 <div class="event-card">
                     <span class="event-icon">💍</span>
                     <h3>${item.title || ''}</h3>
@@ -290,29 +313,28 @@ document.addEventListener("DOMContentLoaded", function(){
 
     function renderMap() {
         const frame = doc.getElementById("mapFrame");
-        if(frame && content.map_location) {
-            frame.src = `https://maps.google.com/maps?q=${encodeURIComponent(content.map_location)}&t=&z=13&ie=UTF8&iwloc=&output=embed`;
+        if(frame && window.content.map_location) {
+            frame.src = `https://maps.google.com/maps?q=${encodeURIComponent(window.content.map_location)}&t=&z=13&ie=UTF8&iwloc=&output=embed`;
         }
     }
 
-    // Input Event Listeners
+    // Sidebar Input Listeners
     document.querySelectorAll("[data-field]").forEach(input => {
         input.addEventListener("change", function() {
             const key = this.dataset.field;
-            content[key] = (this.type === "checkbox") ? (this.checked ? 1 : 0) : this.value;
+            window.content[key] = (this.type === "checkbox") ? (this.checked ? 1 : 0) : this.value;
             renderAll();
         });
-        // Added 'input' for real-time text typing
         if(input.type !== "checkbox" && input.type !== "file") {
             input.addEventListener("input", function() {
-                content[this.dataset.field] = this.value;
+                window.content[this.dataset.field] = this.value;
                 renderAll();
             });
         }
     });
 
-    // Image Upload Logic
-    document.querySelectorAll(".drop-zone").forEach(zone => {
+    // Single Image Upload Logic
+    document.querySelectorAll(".drop-zone:not(.gallery-drop-zone)").forEach(zone => {
         const input = zone.querySelector("input");
         const key = zone.dataset.field;
         zone.onclick = (e) => { if(e.target !== input) input.click(); };
@@ -320,7 +342,7 @@ document.addEventListener("DOMContentLoaded", function(){
             if(!input.files.length) return;
             const reader = new FileReader();
             reader.onload = e => {
-                content[key] = e.target.result;
+                window.content[key] = e.target.result;
                 const container = zone.querySelector(".img-preview-container");
                 if(container) container.innerHTML = `<img class="preview-img-sm" src="${e.target.result}">`;
                 renderAll();
@@ -329,20 +351,138 @@ document.addEventListener("DOMContentLoaded", function(){
         };
     });
 
-    /* REPEATER LOGIC */
+    // Gallery Logic (working but some rendering issue in the editing page. for safety keeping this logic too)
+    // window.handleGalleryUpload = function(input, fieldName) {
+    // // FIX: Initialize the array if it doesn't exist yet
+    //     if (!window.content[fieldName]) {
+    //         window.content[fieldName] = [];
+    //     }
+
+    //     Array.from(input.files).forEach(file => {
+    //         window.galleryFiles.push(file);
+    //         const reader = new FileReader();
+    //         reader.onload = e => {
+    //             window.content[fieldName].push(e.target.result);
+    //             refreshGallerySidebar(fieldName);
+    //             renderAll();
+    //         };
+    //         reader.readAsDataURL(file);
+    //     });
+    //     input.value = "";
+    // };
+
+    // window.refreshGallerySidebar = function(fieldName) {
+    //     const container = document.getElementById('sidebar-gallery-list');
+    //     if(!container) return;
+    //     container.innerHTML = '';
+
+    //     (window.content[fieldName] || []).forEach((img, index) => {
+    //         const wrapper = document.createElement('div');
+    //         wrapper.className = 'gallery-item-wrapper';
+            
+    //         const imgSrc = img.startsWith("data:") ? img : "/storage/" + img;
+            
+    //         wrapper.innerHTML = `
+    //             <img src="${imgSrc}">
+    //             <button type="button" class="delete-img-btn" onclick="removeGalleryImage('${fieldName}', ${index})">×</button>
+    //         `;
+    //         container.appendChild(wrapper);
+    //     });
+    // };
+
+    // window.removeGalleryImage = function(fieldName, index) {
+    //     window.content[fieldName].splice(index, 1);
+    //     refreshGallerySidebar(fieldName);
+    //     renderAll();
+    // };
+
+    // Gallery Logic
+    window.handleGalleryUpload = function(input, fieldName) {
+        // 1. Initialize the array if it doesn't exist
+        if (!window.content[fieldName]) {
+            window.content[fieldName] = [];
+        }
+
+        const files = Array.from(input.files);
+        
+        files.forEach(file => {
+            // Store the raw file for the final upload
+            window.galleryFiles.push(file);
+
+            const reader = new FileReader();
+            reader.onload = e => {
+                // 2. Add the Base64 string to the local state immediately
+                window.content[fieldName].push(e.target.result);
+                
+                // 3. Force update both views immediately
+                refreshGallerySidebar(fieldName);
+                renderAll(); 
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Clear input so user can add the same image again if they want
+        input.value = "";
+    };
+
+    window.refreshGallerySidebar = function(fieldName) {
+        const container = document.getElementById('sidebar-gallery-list');
+        if (!container) {
+            console.error("Gallery sidebar container not found!");
+            return;
+        }
+        
+        container.innerHTML = ''; // Clear current view
+
+        const images = window.content[fieldName] || [];
+
+        images.forEach((img, index) => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'gallery-item-wrapper';
+            
+            // Logic: If it starts with 'data:' it's a new upload. 
+            // If it starts with 'http' it's a full URL.
+            // Otherwise, it's a path from the DB that needs '/storage/'
+            let imgSrc = img;
+            if (!img.startsWith('data:') && !img.startsWith('http')) {
+                imgSrc = "/storage/" + img;
+            }
+            
+            wrapper.innerHTML = `
+                <img src="${imgSrc}" style="width:100%; height:100%; object-fit:cover; border-radius:6px;">
+                <button type="button" class="delete-img-btn" onclick="removeGalleryImage('${fieldName}', ${index})">×</button>
+            `;
+            container.appendChild(wrapper);
+        });
+    };
+
+    window.removeGalleryImage = function(fieldName, index) {
+        // Remove from the content array
+        window.content[fieldName].splice(index, 1);
+        
+        // Also remove from the galleryFiles array if it was a new upload
+        // (Optional logic, usually simpler to just let the backend handle the final diff)
+        
+        refreshGallerySidebar(fieldName);
+        renderAll();
+    };
+
+    // Repeater Logic
     function loadRepeatersToSidebar() {
-        if(content.love_story) content.love_story.forEach((item, i) => addRepeater("love_story", item, i));
-        if(content.events) content.events.forEach((item, i) => addRepeater("events", item, i));
+        const containers = document.querySelectorAll('.repeater-container');
+        containers.forEach(c => c.innerHTML = ''); // Clear old
+        if(window.content.love_story) window.content.love_story.forEach((item, i) => addRepeater("love_story", item, i));
+        if(window.content.events) window.content.events.forEach((item, i) => addRepeater("events", item, i));
     }
 
     window.addRepeater = function(name, data = null, existingIdx = null) {
         const container = document.querySelector(`[data-repeater="${name}"] .repeater-container`);
-        const index = existingIdx !== null ? existingIdx : (content[name] ? content[name].length : 0);
+        const index = existingIdx !== null ? existingIdx : (window.content[name] ? window.content[name].length : 0);
         
-        if(!content[name]) content[name] = [];
+        if(!window.content[name]) window.content[name] = [];
         if(data === null) {
             const newItem = {title: '', description: '', image: '', date: '', location: ''};
-            content[name].push(newItem);
+            window.content[name].push(newItem);
             data = newItem;
         }
 
@@ -367,84 +507,112 @@ document.addEventListener("DOMContentLoaded", function(){
         container.insertAdjacentHTML('beforeend', html);
     };
 
-    window.updateRep = (name, idx, key, val) => { content[name][idx][key] = val; renderRepeaters(); };
+    window.updateRep = (name, idx, key, val) => { window.content[name][idx][key] = val; renderRepeaters(); };
     window.updateRepFile = (name, idx, key, input) => {
         const reader = new FileReader();
-        reader.onload = e => { content[name][idx][key] = e.target.result; renderRepeaters(); };
+        reader.onload = e => { window.content[name][idx][key] = e.target.result; renderRepeaters(); };
         reader.readAsDataURL(input.files[0]);
     };
-    window.removeRep = (name, idx, btn) => { content[name].splice(idx, 1); btn.parentElement.remove(); renderRepeaters(); };
+    window.removeRep = (name, idx, btn) => { window.content[name].splice(idx, 1); btn.parentElement.remove(); renderRepeaters(); };
 
-    // SAVE AJAX
-    saveBtn.addEventListener("click", async function () {
+    // Final Save/Publish Logic
+    const saveBtn = document.getElementById('saveBtn');
+    const publishBtn = document.getElementById('publishBtn');
 
-        saveBtn.innerText = "Saving...";
+    //save
+    async function saveTemplate(publish = false) {
         saveBtn.disabled = true;
+        publishBtn.disabled = true;
+        const originalText = saveBtn.innerText;
+        
+        // 1. Show a "Processing" toast or loading state
+        saveBtn.innerText = publish ? "Publishing..." : "Saving...";
 
         const formData = new FormData();
 
-        // Append gallery files
-        window.galleryFiles.forEach(file => {
-            formData.append("gallery_images[]", file);
-        });
+        if (window.galleryFiles) {
+            window.galleryFiles.forEach(file => formData.append('gallery_images[]', file));
+        }
 
-        // Remove base64 images from JSON before sending
-        let cleanContent = JSON.parse(JSON.stringify(content));
+        let contentToSend = JSON.parse(JSON.stringify(window.content));
+        if (contentToSend.gallery) {
+            contentToSend.gallery = contentToSend.gallery.filter(img => !img.startsWith("data:"));
+        }
 
-        formData.append("content", JSON.stringify(cleanContent));
+        formData.append('content', JSON.stringify(contentToSend));
+        formData.append('publish', publish ? 1 : 0);
 
         try {
             const response = await fetch("{{ route('template.save', $userTemplate->id) }}", {
                 method: "POST",
-                headers: {
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                headers: { 
+                    'X-CSRF-TOKEN': "{{ csrf_token() }}",
+                    'Accept': 'application/json'
                 },
                 body: formData
             });
 
-            const result = await response.json();
+            const data = await response.json();
 
-            if (response.ok) {
-                alert("Saved Successfully!");
-                location.reload();
+            if (response.ok && data.success) {
+                window.content = data.content; 
+                window.galleryFiles = []; 
+                
+                if (publish && data.publish_url) {
+                    // Success Alert for Publishing
+                    Swal.fire({
+                        title: 'Published!',
+                        text: 'Your wedding website is now live.',
+                        icon: 'success',
+                        confirmButtonColor: '#d63384',
+                        confirmButtonText: 'View Website'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.open(data.publish_url, '_blank');
+                        }
+                    });
+                } else {
+                    // Success Toast for Saving
+                    Swal.fire({
+                        title: 'Saved!',
+                        text: 'Your progress has been secured.',
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false,
+                        toast: true,
+                        position: 'top-end'
+                    });
+                }
+                
+                renderAll(); 
+                refreshGallerySidebar('gallery');
             } else {
-                alert(result.error || "Error occurred");
+                // Error Alert
+                Swal.fire({
+                    title: 'Error',
+                    text: data.error || "Something went wrong while saving.",
+                    icon: 'error',
+                    confirmButtonColor: '#d63384'
+                });
             }
-
-        } catch (error) {
-            alert("Upload failed.");
+        } catch (err) {
+            // Connection Error Alert
+            Swal.fire({
+                title: 'Connection Failed',
+                text: 'Could not reach the server. Please check your internet.',
+                icon: 'warning',
+                confirmButtonColor: '#d63384'
+            });
+        } finally {
+            saveBtn.disabled = false;
+            publishBtn.disabled = false;
+            saveBtn.innerText = "Save";
+            publishBtn.innerText = "Publish";
         }
+    }
 
-        saveBtn.innerText = "Save & Publish Site";
-        saveBtn.disabled = false;
-    });
-
-    window.galleryFiles = [];
-
-    window.handleGalleryUpload = function(input, fieldName) {
-        if (!content[fieldName]) content[fieldName] = [];
-
-        const galleryEditor = document.querySelector(`.gallery-editor[data-field="${fieldName}"]`);
-
-        Array.from(input.files).forEach(file => {
-            window.galleryFiles.push(file);
-
-            const reader = new FileReader();
-            reader.onload = e => {
-                content[fieldName].push(e.target.result);
-
-                const img = document.createElement("img");
-                img.src = e.target.result;
-                img.className = "preview-img-sm";
-                galleryEditor.appendChild(img);
-
-                renderAll();
-            };
-            reader.readAsDataURL(file);
-        });
-
-        input.value = "";
-    };
+    saveBtn.addEventListener('click', () => saveTemplate(false));
+    publishBtn.addEventListener('click', () => saveTemplate(true));
 });
 </script>
 @endsection

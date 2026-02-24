@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserTemplate extends Model
 {
-    protected $fillable = ['user_id', 'template_id', 'title'];
+    protected $fillable = ['user_id', 'template_id', 'title', 'html_file'];
 
     protected $casts = ['fields' => 'array',];
 
