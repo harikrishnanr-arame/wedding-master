@@ -16,7 +16,8 @@ namespace App\Http\Controllers;
  */
 class DashboardController extends Controller
 {
-    public function profile() {
+    public function profile()
+    {
         /** Display authenticated user's profile page */
         return view('dashboard.profile');
     }

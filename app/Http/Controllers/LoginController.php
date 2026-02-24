@@ -92,8 +92,8 @@ class LoginController extends Controller
      * - Regenerates the CSRF token for security.
      * - Redirects the user to the home page.
      */
-    public function logout() {
-        
+    public function logout()
+    {    
         Auth::logout();
         request()->session()->invalidate();
         request()->session()->regenerateToken();
