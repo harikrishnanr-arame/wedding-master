@@ -103,7 +103,7 @@ class DashboardController extends Controller
         );
     }
 
-    //logic which work saving 
+    //logic which work saving only (keeping this as bkp)
 // public function saveTemplate(Request $request, $id)
 // {
 //     $content = json_decode($request->input('content'), true) ?? [];
@@ -203,17 +203,27 @@ class DashboardController extends Controller
            // 5. Handle Publish Logic
            $publishUrl = null;
            if ($request->input('publish') == "1" || $request->input('publish') === true) {
-               $route = 'wedding-' . $userTemplate->id . '-' . time();
-                
-               \App\Models\PublishedTemplate::updateOrCreate(
-                   ['user_id' => auth()->id(), 'template_id' => $userTemplate->template_id],
-                   [
-                       'route' => $route,
-                       'content_json' => json_encode($finalContent)
-                   ]
-               );
-               $publishUrl = url('/published/' . $route);
-           }
+
+                $metaTitle = $finalContent['meta_title'] ?? 'wedding';
+                $slug = \Illuminate\Support\Str::slug($metaTitle);
+
+                $existing = \App\Models\PublishedTemplate::where('route', $slug)->first();
+
+                $route = $existing ? $slug . '-' . $userTemplate->id : $slug;
+
+                \App\Models\PublishedTemplate::updateOrCreate(
+                    [
+                        'user_id' => auth()->id(),
+                        'template_id' => $userTemplate->template_id
+                    ],
+                    [
+                        'route' => $route,
+                        'content_json' => json_encode($finalContent)
+                    ]
+                );
+
+                $publishUrl = url('/published/' . $route);
+            }
 
            return response()->json([
                'success' => true,
