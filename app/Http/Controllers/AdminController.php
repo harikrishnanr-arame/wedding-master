@@ -134,10 +134,6 @@ class AdminController extends Controller
     public function payments()
     {
         $payments = Payment::with('user')->latest()->get();
-        //keeping this for safety
-        // $totalRevenue = Payment::where('status', 'paid')->sum('amount');
-        // $totalPending = Payment::where('status', 'pending')->sum('amount');
-        // $totalFailed  = Payment::where('status', 'failed')->sum('amount');
         $totalRevenue = Payment::where('status', Payment::STATUS_PAID)->sum('amount');
         $totalPending = Payment::where('status', Payment::STATUS_PENDING)->sum('amount');
         $totalFailed  = Payment::where('status', Payment::STATUS_FAILED)->sum('amount');

@@ -14,7 +14,6 @@ return [
     ],
 
     'ERRORS' => [
-
         'GOOGLE_CONNECTION_FAILED' => 'Unable to connect to Google. Please try again.',
         'GOOGLE_LOGIN_FAILED' => 'Google login failed. Please try again.',
         'GENERIC_ERROR' => 'An error occurred. Please try again.',

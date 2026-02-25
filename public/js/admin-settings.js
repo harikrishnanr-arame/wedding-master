@@ -21,16 +21,29 @@ $(document).ready(function(){
         let confirmPass = $("#confirmPassword").val();
 
         if(newPass.length < 6){
-            alert("Password must be at least 6 characters.");
+            Swal.fire({
+                icon: 'error',
+                title: 'Validation Error',
+                text: 'Password must be at least 6 characters.'
+            });
             return;
         }
 
         if(newPass !== confirmPass){
-            alert("Passwords do not match.");
+            Swal.fire({
+                icon: 'error',
+                title: 'Validation Error',
+                text: 'Passwords do not match.'
+            });
             return;
         }
 
-        alert("Password updated successfully!");
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: 'Password updated successfully!',
+            confirmButtonColor: '#3085d6'
+        });
         $("input[type=password]").val("");
     });
 
@@ -48,11 +61,19 @@ $("#changePasswordBtn").click(function(){
             new_password_confirmation: $("#confirmPassword").val()
         },
         success: function(response){
-            alert(response.success);
+            Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: response.success
+            });
             $("input[type=password]").val("");
         },
         error: function(xhr){
-            alert(xhr.responseJSON.error || "Something went wrong");
+            Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: xhr.responseJSON?.error || "Something went wrong"
+            });
         }
     });
 

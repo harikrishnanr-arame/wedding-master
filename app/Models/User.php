@@ -53,6 +53,9 @@ class User extends Authenticatable {
     'email_verified_at' => 'datetime',
     ];
 
+     /**
+     * Send the password reset notification to the user.
+     */
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new ResetPassword($token));
