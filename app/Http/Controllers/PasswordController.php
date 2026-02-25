@@ -40,7 +40,7 @@ class PasswordController extends Controller
 
         return $status === Password::RESET_LINK_SENT
             ? back()->with('success', 'Reset link sent to your email')
-            : back()->withErrors(['email' => 'Unable to send reset link']);
+            : back()->withErrors(['email' => config('constants.ERRORS.UNABLE_TO_SEND_RESET_LINK')]);
     }
 
     /**
@@ -85,6 +85,6 @@ class PasswordController extends Controller
         return $status === Password::PASSWORD_RESET
             ? redirect()->route('login')
                 ->with('success', 'Password reset successful')
-            : back()->withErrors(['email' => 'Reset failed']);
+            : back()->withErrors(['email' => config('constants.ERRORS.PASSWORD_RESET_FAILED')]);
     }
 }

@@ -187,11 +187,18 @@ $(document).ready(function() {
                         }
 
                     },
-                    error: function () {
+                    error: function (xhr) {
+
+                        let message = "Something went wrong. Please try again.";
+
+                        if (xhr.responseJSON && xhr.responseJSON.error) {
+                            message = xhr.responseJSON.error;
+                        }
+
                         Swal.fire({
                             icon: "error",
-                            title: "Oops...",
-                            text: "Something went wrong. Please try again."
+                            title: "Error",
+                            text: message
                         });
                     }
                 });

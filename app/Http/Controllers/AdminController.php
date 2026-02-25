@@ -25,13 +25,8 @@ class AdminController extends Controller
 
     public function __construct()
     {
-        $this->middleware(['auth', 'admin']);
-
-        $this->middleware(function ($request, $next) {
-            $this->admin = Auth::user();
-            view()->share('admin', $this->admin);
-            return $next($request);
-        });
+        $this->admin = Auth::user();
+        view()->share('admin', $this->admin);
     }
 
     /**
@@ -73,7 +68,7 @@ class AdminController extends Controller
         $user = User::findOrFail($id);
         if ($user->isAdmin()) {
             return response()->json([
-                'error' => 'Cannot delete admin'
+                'error' => config('constants.ERRORS.CANNOT_DELETE_ADMIN')
             ], 403);
         }
 
@@ -139,6 +134,7 @@ class AdminController extends Controller
     public function payments()
     {
         $payments = Payment::with('user')->latest()->get();
+        //keeping this for safety
         // $totalRevenue = Payment::where('status', 'paid')->sum('amount');
         // $totalPending = Payment::where('status', 'pending')->sum('amount');
         // $totalFailed  = Payment::where('status', 'failed')->sum('amount');
@@ -218,7 +214,7 @@ class AdminController extends Controller
 
         } catch (\Exception $e) {
             \Log::error('Template upload failed: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Something went wrong while uploading template.');
+            return redirect()->back()->with('error', config('constants.ERRORS.TEMPLATE_UPLOAD_FAILED'));
         }
     }
 
@@ -301,7 +297,7 @@ class AdminController extends Controller
         // Check current password
         if (!Hash::check($request->current_password, $user->password)) {
             return response()->json([
-                'error' => 'Current password is incorrect'
+                'error' => config('constants.ERRORS.CURRENT_PASSWORD_INCORRECT')
             ], 400);
         }
 

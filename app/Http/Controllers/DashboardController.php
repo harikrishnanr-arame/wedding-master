@@ -16,17 +16,19 @@ namespace App\Http\Controllers;
  */
 class DashboardController extends Controller
 {
+    /** Display authenticated user's profile page */
     public function profile()
     {
-        /** Display authenticated user's profile page */
         return view('dashboard.profile');
     }
 
+    /** Display user's templates page */
     public function templates()
     {
         return view('dashboard.templates');
     }
 
+    /** Display user's payments page */
     public function payments()
     {
         return view('dashboard.payments');
