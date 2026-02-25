@@ -37,10 +37,7 @@ Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback']);
 
 /* User Dashboard*/
 
-Route::prefix('dashboard')
-    ->middleware('auth')
-    ->name('dashboard.')
-    ->group(function () {
+Route::prefix('dashboard')->middleware('auth')->name('dashboard.')->group(function () {
 
         Route::get('/', [DashboardController::class, 'profile'])->name('profile');
         Route::get('/templates', [DashboardController::class, 'templates'])->name('templates');
@@ -50,10 +47,7 @@ Route::prefix('dashboard')
 
 /* Admin Panel*/
 
-Route::prefix('admin')
-    ->middleware(['auth', 'admin'])
-    ->name('admin.')
-    ->group(function () {
+Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(function () {
 
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
         Route::get('/users', [AdminController::class, 'users'])->name('users');
@@ -74,4 +68,10 @@ Route::prefix('admin')
         Route::post('/templates/store', [AdminController::class, 'storeTemplate'])->name('templates.store');
         Route::delete('/templates/delete/{id}', [AdminController::class, 'deleteTemplate'])->name('templates.delete');
         Route::patch('/templates/toggle/{id}', [AdminController::class, 'toggleTemplate'])->name('templates.toggle');
+
+        //Settings
+        Route::post('/change-password', [AdminController::class, 'changePassword'])->name('change-password');
 });
+
+/* Template Edit Page*/
+Route::get('/template-edit/{id}', function ($id) { return view('templateEditPage', compact('id'));})->name('template.edit');

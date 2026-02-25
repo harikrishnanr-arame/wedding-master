@@ -70,15 +70,14 @@
             </div>
             @endif
 
-
             <div class="form-group">
-                <label>Template Name</label>
-                <input type="text" name="name" required>
+                <label for="name">Template Name</label>
+                <input type="text" id="name" name="name" required>
             </div>
 
             <div class="form-group">
-                <label>Category</label>
-                <select name="category" required>
+                <label for="category">Category</label>
+                <select id="category" name="category" required>
                     <option value="">Select Category</option>
                     <option value="wedding">Wedding</option>
                     <option value="haldi">Haldi</option>
@@ -87,18 +86,18 @@
             </div>
 
             <div class="form-group">
-                <label>Cover Image</label>
-                <input type="file" name="cover_image" accept="image/*" required>
+                <label for="cover_image">Cover Image</label>
+                <input type="file" id="cover_image" name="cover_image" accept="image/*" required>
             </div>
 
             <div class="form-group">
-                <label>HTML File</label>
-                <input type="file" name="html_file" accept=".html" required>
+                <label for="html_file">HTML File</label>
+                <input type="file" id="html_file" name="html_file" accept=".html" required>
             </div>
 
             <div class="form-group">
-                <label>CSS File</label>
-                <input type="file" name="css_file" accept=".css" required>
+                <label for="css_file">CSS File</label>
+                <input type="file" id="css_file" name="css_file" accept=".css" required>
             </div>
 
             <div class="modal-buttons">

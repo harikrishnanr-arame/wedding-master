@@ -31,7 +31,7 @@ class GoogleAuthController extends Controller
         catch (Exception $e)
         {
             return redirect('/login')
-                ->with('error', 'Unable to connect to Google. Please try again.');
+                ->with('error', config('constants.ERRORS.GOOGLE_LOGIN_FAILED'));
         }
     }
 
@@ -81,7 +81,7 @@ class GoogleAuthController extends Controller
         }
         catch (Exception $e)
         {
-            return redirect('/login')->with('error', 'Google login failed. Please try again.');
+            return redirect('/login')->with('error', config('constants.ERRORS.GOOGLE_CONNECTION_FAILED'));
         }
     }
 }

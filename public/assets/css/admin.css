@@ -20,6 +20,10 @@ body{
     background:#1f2a44;
     color:white;
     padding:20px 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100vh;
 }
 
 .sidebar h2{
@@ -43,6 +47,26 @@ body{
     border-left:4px solid #4e8cff;
 }
 
+.sidebar-logout {
+    padding: 20px;
+}
+
+.sidebar-logout button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    background: #ff4d4f;
+    color: white;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.sidebar-logout button:hover {
+    background: #ff7875;
+}
+
 /* Main */
 .main{
     flex:1;
@@ -64,7 +88,7 @@ body{
 }
 
 .profile{
-    background:#4e8cff;
+    background:#1f5ed6;
     padding:8px 15px;
     border-radius:30px;
     color:white;
@@ -230,31 +254,4 @@ body{
 
 .legend-box.active{
     background:#4e8cff;
-}
-
-.sidebar {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 100vh;
-}
-
-.sidebar-logout {
-    padding: 20px;
-}
-
-.sidebar-logout button {
-    width: 100%;
-    padding: 10px;
-    border: none;
-    background: #ff4d4f;
-    color: white;
-    font-weight: 600;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-.sidebar-logout button:hover {
-    background: #ff7875;
 }

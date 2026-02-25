@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Models;
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -54,14 +53,17 @@ class User extends Authenticatable {
     'email_verified_at' => 'datetime',
     ];
 
-    public function sendPasswordResetNotification($token) {
-
+     /**
+     * Send the password reset notification to the user.
+     */
+    public function sendPasswordResetNotification($token)
+    {
         $this->notify(new ResetPassword($token));
     }
 
     /** for the admin check */
-    public function isAdmin() {
-
+    public function isAdmin()
+    {
         return strtolower(trim($this->role)) === 'admin';
     }
 

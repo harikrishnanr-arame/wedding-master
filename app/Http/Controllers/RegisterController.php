@@ -55,8 +55,8 @@ class RegisterController extends Controller
             'phone' => 'nullable|digits_between:10,15|unique:users,mobile_number',
             'password' => 'required|min:6|confirmed',
         ], [
-            'email.unique' => 'This email is already registered.',
-            'phone.unique' => 'This mobile number is already registered.',
+            'email.unique' => config('constants.ERRORS.EMAIL_ALREADY_REGISTERED'),
+            'phone.unique' => config('constants.ERRORS.PHONE_ALREADY_REGISTERED'),
         ]);
 
         // Create user

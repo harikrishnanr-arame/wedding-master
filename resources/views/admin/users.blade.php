@@ -38,28 +38,43 @@
             </div>
 
             <div class="modal-body">
+
                 <div class="form-group">
-                    <label>Name</label>
-                    <input type="text" id="newName" placeholder="Enter name">
+                    <label for="newName">Name</label>
+                    <input 
+                        type="text" 
+                        id="newName" 
+                        name="name"
+                        placeholder="Enter name">
                 </div>
 
                 <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="newEmail" placeholder="Enter email">
+                    <label for="newEmail">Email</label>
+                    <input 
+                        type="email" 
+                        id="newEmail" 
+                        name="email"
+                        placeholder="Enter email">
                 </div>
 
                 <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="newPassword" placeholder="Enter password">
+                    <label for="newPassword">Password</label>
+                    <input 
+                        type="password" 
+                        id="newPassword" 
+                        name="password"
+                        placeholder="Enter password"
+                        autocomplete="new-password">
                 </div>
 
                 <div class="form-group">
-                    <label>Role</label>
-                    <select id="newRole">
+                    <label for="newRole">Role</label>
+                    <select id="newRole" name="role">
                         <option value="0">User</option>
                         <option value="1">Admin</option>
                     </select>
                 </div>
+
             </div>
 
             <div class="modal-footer">
@@ -78,6 +93,7 @@
 <script>
 $(document).ready(function() {
 
+    // Load Users
     function loadUsers() {
         $.ajax({
             url: "{{ route('admin.users.list') }}",
@@ -105,7 +121,9 @@ $(document).ready(function() {
                                 <td>${user.role ?? 'user'}</td>
                                 <td>${joinedDate}</td>
                                 <td>
-                                    <button class="delete" data-id="${user.id}"><i class="fa-solid fa-trash"></i></button>
+                                    <button class="delete" data-id="${user.id}">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
                                 </td>
                             </tr>
                         `;
@@ -113,6 +131,13 @@ $(document).ready(function() {
                 }
 
                 $("#usersTableBody").html(rows);
+            },
+            error: function() {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Failed to load users',
+                    text: 'Something went wrong.'
+                });
             }
         });
     }
@@ -162,11 +187,18 @@ $(document).ready(function() {
                         }
 
                     },
-                    error: function () {
+                    error: function (xhr) {
+
+                        let message = "Something went wrong. Please try again.";
+
+                        if (xhr.responseJSON && xhr.responseJSON.error) {
+                            message = xhr.responseJSON.error;
+                        }
+
                         Swal.fire({
                             icon: "error",
-                            title: "Oops...",
-                            text: "Something went wrong. Please try again."
+                            title: "Error",
+                            text: message
                         });
                     }
                 });
@@ -216,11 +248,11 @@ $(document).ready(function() {
     });
 
     // CLOSE MODAL
-    $("#closeModal").click(function(){
+    $("#closeModal, #closeModalBtn").click(function(){
         $("#addUserModal").hide();
     });
 
-    // SAVE USER
+    // SAVE USER (SweetAlert Success & Error)
     $("#saveUser").click(function(){
 
         $.ajax({
@@ -236,7 +268,7 @@ $(document).ready(function() {
                 role: $("#newRole").val()
             },
             success: function(response){
-                
+
                 $("#addUserModal").hide();
 
                 // Clear form
@@ -245,10 +277,24 @@ $(document).ready(function() {
                 $("#newPassword").val('');
                 $("#newRole").val('0');
 
+                Swal.fire({
+                    icon: 'success',
+                    title: 'User Created!',
+                    text: 'New user has been added successfully.',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+
                 loadUsers();
             },
             error: function(xhr){
-                alert("Error: " + xhr.responseJSON.message);
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Creation Failed',
+                    text: xhr.responseJSON?.message ?? 'Something went wrong!'
+                });
+
             }
         });
 

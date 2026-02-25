@@ -15,14 +15,22 @@
         <h3>Admin Profile</h3>
 
         <div class="profile-section">
-            <div class="profile-img" id="profileInitial">A</div>
+            <div class="profile-img" id="profileInitial">
+                {{ strtoupper(substr($admin->user_name, 0, 1)) }}
+            </div>
 
             <div class="profile-info">
-                <p><strong>Name:</strong> <span id="adminName">Aswin Admin</span></p>
-                <p><strong>Email:</strong> <span id="adminEmail">admin@example.com</span></p>
-                <p><strong>Role:</strong> Super Admin</p>
+                <p><strong>Name:</strong> 
+                    <span id="adminName">{{ $admin->user_name }}</span>
+                </p>
 
-                <button class="edit-btn" id="editProfile">Edit Profile</button>
+                <p><strong>Email:</strong> 
+                    <span id="adminEmail">{{ $admin->email }}</span>
+                </p>
+
+                <p><strong>Role:</strong> 
+                    {{ ucfirst($admin->role) }}
+                </p>
             </div>
         </div>
     </div>
@@ -32,51 +40,21 @@
         <h3>Change Password</h3>
 
         <div class="form-group">
-            <label>Current Password</label>
-            <input type="password" id="currentPassword">
+            <label for="currentPassword">Current Password</label>
+            <input type="password" id="currentPassword" name="current_password">
         </div>
 
         <div class="form-group">
-            <label>New Password</label>
-            <input type="password" id="newPassword">
+            <label for="newPassword">New Password</label>
+            <input type="password" id="newPassword" name="new_password">
         </div>
 
         <div class="form-group">
-            <label>Confirm Password</label>
-            <input type="password" id="confirmPassword">
+            <label for="confirmPassword">Confirm Password</label>
+            <input type="password" id="confirmPassword" name="confirm_password">
         </div>
 
         <button class="save-btn" id="changePasswordBtn">Update Password</button>
-    </div>
-
-    <!-- General Settings -->
-    <div class="panel">
-        <h3>General Settings</h3>
-
-        <div class="toggle">
-            <span>Email Notifications</span>
-            <label class="switch">
-                <input type="checkbox" checked>
-                <span class="slider"></span>
-            </label>
-        </div>
-
-        <div class="toggle">
-            <span>Enable Dark Mode</span>
-            <label class="switch">
-                <input type="checkbox" id="darkModeToggle">
-                <span class="slider"></span>
-            </label>
-        </div>
-
-        <div class="toggle">
-            <span>Two-Factor Authentication</span>
-            <label class="switch">
-                <input type="checkbox">
-                <span class="slider"></span>
-            </label>
-        </div>
-
     </div>
 
 </div>
@@ -150,3 +128,4 @@ $(document).ready(function(){
 });
 </script>
 @endsection
+

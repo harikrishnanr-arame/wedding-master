@@ -46,56 +46,32 @@
         </p>
         <!-- TEMPLATES GRID -->
         <div class="templates-grid">
-          <!-- TEMPLATE CARD -->
-          <div class="template-card">
-            <img src="{{ asset('assets/img/i.jpg') }}" alt="Wedding Home 1">
-            <h3>Wedding Home 1</h3>
-            <div class="template-actions">
-              <button onclick="location.href='templateEditPage.html'">Choose This Template</button>
-              <span class="heart">♡</span>
-            </div>
-          </div>
-          <div class="template-card">
-            <img src="{{ asset('assets/img/i1.jpg') }}" alt="Muslim Wedding Home">
-            <h3>Muslim Wedding Home</h3>
-            <div class="template-actions">
-              <button onclick="location.href='templateEditPage.html'">Choose This Template</button>
-              <span class="heart">♡</span>
-            </div>
-          </div>
-          <div class="template-card">
-            <img src="{{ asset('assets/img/i2.png') }}" alt="Announcement Home 2">
-            <h3>Announcement Home 2</h3>
-            <div class="template-actions">
-              <button onclick="location.href='templateEditPage.html'">Choose This Template</button>
-              <span class="heart">♡</span>
-            </div>
-          </div>
-          <div class="template-card">
-            <img src="{{ asset('img/i3.png') }}" alt="Wedding Home 1">
-            <h3>Wedding Home 1</h3>
-            <div class="template-actions">
-              <button onclick="location.href='{{ url('/template-edit') }}'">Choose This Template</button>
-              <span class="heart">♡</span>
-            </div>
-          </div>
-          <div class="template-card">
-            <img src="{{ asset('img/i4.png') }}" alt="Muslim Wedding Home">
-            <h3>Muslim Wedding Home</h3>
-            <div class="template-actions">
-              <button onclick="location.href='{{ url('/template-edit') }}'">Choose This Template</button>
-              <span class="heart">♡</span>
-            </div>
-          </div>
-          <div class="template-card">
-            <img src="{{ asset('img/i5.png') }}" alt="Announcement Home 2">
-            <h3>Announcement Home 2</h3>
-            <div class="template-actions">
-              <button onclick="location.href='templateEditPage.html'">Choose This Template</button>
-              <span class="heart">♡</span>
-            </div>
-          </div>
+
+            @forelse($templates as $template)
+
+                <div class="template-card">
+                    
+                    <img src="{{ asset('storage/'.$template->cover_image) }}" 
+                        alt="{{ $template->name }}">
+
+                    <h3>{{ $template->name }}</h3>
+
+                    <div class="template-actions">
+                        <button onclick="location.href='{{ route('template.edit', $template->id) }}'">
+                            Choose This Template
+                        </button>
+
+                        <span class="heart">♡</span>
+                    </div>
+
+                </div>
+
+            @empty
+                <p style="text-align:center;">No templates available right now.</p>
+            @endforelse
+
         </div>
+
       </div>
     </section>
     <!-- review -->

@@ -56,30 +56,43 @@ class LoginController extends Controller
                 'email' => 'required|email',
                 'password' => 'required',
             ]);
+
             if (Auth::attempt($credentials)) 
             {
                 $request->session()->regenerate();
+
                 if (auth()->user()->isAdmin()) 
                 {
-                    return redirect('/admin/dashboard')->with('success', 'Welcome Admin');
+                    return redirect('/admin/dashboard')
+                        ->with('success', config('constants.AUTH.WELCOME_ADMIN'));
                 }
-                return redirect('/')->with('success', 'Logged in successfully');
+
+                return redirect('/')
+                    ->with('success', config('constants.AUTH.LOGIN_SUCCESS'));
             }
+
             return back()->withErrors([
-                'email' => 'Invalid email or password',
+                'email' => config('constants.AUTH.INVALID_CREDENTIALS'),
             ]);
         }
         catch (\Exception $e)
         {
-            Log::channel('custom_log')->error('Error in LoginController@login: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString(),
-                'request' => $request->all()
+            Log::channel('custom_log')->error(
+                'Error in LoginController@login: ' . $e->getMessage(),
+                [
+                    'trace' => $e->getTraceAsString(),
+                    'request' => $request->all()
+                ]
+            );
+
+            return back()->withErrors([
+                'email' => config('constants.AUTH.GENERIC_ERROR')
             ]);
-            return back()->withErrors(['email' => 'An error occurred. Please try again.']);
         }
         finally
         {
-            Log::channel('custom_log')->info('LoginController@login method executed');
+            Log::channel('custom_log')
+                ->info('LoginController@login method executed');
         }
     }
 
@@ -92,8 +105,8 @@ class LoginController extends Controller
      * - Regenerates the CSRF token for security.
      * - Redirects the user to the home page.
      */
-    public function logout() {
-        
+    public function logout()
+    {    
         Auth::logout();
         request()->session()->invalidate();
         request()->session()->regenerateToken();

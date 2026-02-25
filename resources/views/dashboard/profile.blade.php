@@ -14,20 +14,28 @@
     <div class="section-title">Quick Actions</div>
 
     <div class="dashboard-grid">
-      <div class="dash-card" onclick="location.href='templates.html'">
+
+      <a href="templates.html"
+        style="display:block; text-decoration:none; color:inherit; cursor:pointer;"
+        class="dash-card">
         <h3>➕ Create Website</h3>
         <p>Choose a wedding template and start editing</p>
-      </div>
+      </a>
 
-      <div class="dash-card" onclick="location.href='templateEditPage.html'">
+      <a href="templateEditPage.html"
+        style="display:block; text-decoration:none; color:inherit; cursor:pointer;"
+        class="dash-card">
         <h3>🧩 Continue Editing</h3>
         <p>Resume your last saved project</p>
-      </div>
+      </a>
 
-      <div class="dash-card" onclick="location.href='payments.html'">
+      <a href="payments.html"
+        style="display:block; text-decoration:none; color:inherit; cursor:pointer;"
+        class="dash-card">
         <h3>💳 Billing</h3>
         <p>View payments & subscription</p>
-      </div>
+      </a>
+
     </div>
 
     <!-- STATS -->

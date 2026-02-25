@@ -13,7 +13,7 @@
  */ -->
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>Forgot Password</title>
 <style>
